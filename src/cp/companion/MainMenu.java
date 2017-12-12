@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package cp.companion;
-import java.sql.*;
+
 
 /**
  *
@@ -12,16 +12,15 @@ import java.sql.*;
  */
 public class MainMenu extends javax.swing.JFrame {
 
-    String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=BD1;integratedSecurity=true;";
-    Connection con = null;
-    Statement stmt = null;
-    ResultSet rs = null;
+
+    
         
     /**
      * Creates new form MainMenu
      */
     public MainMenu() {
-        initComponents();
+        initComponents();        
+        this.setLocationRelativeTo(null);
     }
 
     /**
@@ -33,15 +32,15 @@ public class MainMenu extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        btnEmpezar = new javax.swing.JButton();
+        btnConfig = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("CP Companion");
 
-        btnEmpezar.setText("EMPEZAR");
-        btnEmpezar.addActionListener(new java.awt.event.ActionListener() {
+        btnConfig.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cp/companion/resources/config.png"))); // NOI18N
+        btnConfig.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEmpezarActionPerformed(evt);
+                btnConfigActionPerformed(evt);
             }
         });
 
@@ -49,48 +48,28 @@ public class MainMenu extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(281, 281, 281)
-                .addComponent(btnEmpezar, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(285, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(601, Short.MAX_VALUE)
+                .addComponent(btnConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(53, 53, 53))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(193, 193, 193)
-                .addComponent(btnEmpezar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(285, Short.MAX_VALUE))
+                .addGap(37, 37, 37)
+                .addComponent(btnConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(445, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnEmpezarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEmpezarActionPerformed
-  
-        try {
-                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                con = DriverManager.getConnection(connectionUrl);
-                System.out.println("CONECTADO!");
-                String SQL = "SELECT TOP 10 * FROM dbo.ARTICULOS";
-                stmt = con.createStatement();
-                rs = stmt.executeQuery(SQL);
-
-                while (rs.next()) {
-                        System.out.println(rs.getString(4) + " " + rs.getString(6));
-                }
-        }
-
-        // Handle any errors that may have occurred.
-        catch (Exception e) {
-                e.printStackTrace();
-        }
-
-        finally {
-                if (rs != null) try { rs.close(); } catch(Exception e) {}
-                if (stmt != null) try { stmt.close(); } catch(Exception e) {}
-                if (con != null) try { con.close(); } catch(Exception e) {}
-        }
-    }//GEN-LAST:event_btnEmpezarActionPerformed
+   
+    
+    private void btnConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigActionPerformed
+        ConfigMenu.GetInstance().setLocationRelativeTo(null);
+        ConfigMenu.GetInstance().setVisible(true);
+    }//GEN-LAST:event_btnConfigActionPerformed
 
     /**
      * @param args the command line arguments
@@ -128,6 +107,6 @@ public class MainMenu extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnEmpezar;
+    private javax.swing.JButton btnConfig;
     // End of variables declaration//GEN-END:variables
 }
