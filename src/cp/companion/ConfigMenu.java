@@ -1,18 +1,38 @@
 package cp.companion;
 
+import java.awt.Color;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 public class ConfigMenu extends javax.swing.JFrame {
 
-    private static ConfigMenu confWin = null;
-
+    private static ConfigMenu selfInstance = null;
+    private boolean connectionSuccess = false;
+    
     /**
      * Creates new form ConfiguracionBD
      */
     public ConfigMenu() {
         initComponents();
         this.setLocationRelativeTo(null);
-        this.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        this.setDefaultCloseOperation(HIDE_ON_CLOSE);      
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {          
+                onClose();
+            }
+        });
     }
 
+
+    
+    public void onClose(){
+        MainMenu.GetInstance().setEnabled(true);
+        this.setVisible(false);
+        labelResult.setText("");
+        textPass.setText("");
+        labelResult.setOpaque(false);   
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -22,34 +42,32 @@ public class ConfigMenu extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel3 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        btnConnect = new javax.swing.JButton();
+        textPass = new javax.swing.JPasswordField();
         textUser = new javax.swing.JTextField();
         textNameDB = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        btnConnect = new javax.swing.JButton();
+        checkInstance = new javax.swing.JCheckBox();
+        textTCP = new javax.swing.JTextField();
         textIP = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        checkInstance = new javax.swing.JCheckBox();
-        textPass = new javax.swing.JPasswordField();
         jLabel5 = new javax.swing.JLabel();
-        textTCP = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        labelResult = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        btnSave = new javax.swing.JButton();
+        btnCancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Configuración");
         setResizable(false);
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel3.setText("Password:");
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Base de datos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 16))); // NOI18N
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel2.setText("Usuario:");
-
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel1.setText("Base de Datos:");
-
-        btnConnect.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
-        btnConnect.setText("CONECTAR");
+        btnConnect.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnConnect.setText("Test Conexión");
         btnConnect.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnConnect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -57,15 +75,11 @@ public class ConfigMenu extends javax.swing.JFrame {
             }
         });
 
-        textIP.setText("localhost");
-        textIP.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                textIPActionPerformed(evt);
-            }
-        });
+        textPass.setFont(new java.awt.Font("Consolas", 0, 15)); // NOI18N
 
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel4.setText("Dirección IP:");
+        textUser.setFont(new java.awt.Font("Consolas", 0, 15)); // NOI18N
+
+        textNameDB.setFont(new java.awt.Font("Consolas", 0, 15)); // NOI18N
 
         checkInstance.setText("Con Instancia (\\\\SQLEXPRESS)");
         checkInstance.addActionListener(new java.awt.event.ActionListener() {
@@ -74,13 +88,130 @@ public class ConfigMenu extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel5.setText("Puerto TCP:");
-
+        textTCP.setFont(new java.awt.Font("Consolas", 0, 15)); // NOI18N
         textTCP.setText("1433");
         textTCP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 textTCPActionPerformed(evt);
+            }
+        });
+
+        textIP.setFont(new java.awt.Font("Consolas", 0, 15)); // NOI18N
+        textIP.setText("localhost");
+        textIP.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textIPActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel4.setText("Dirección IP:");
+
+        jLabel5.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel5.setText("Puerto TCP:");
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel1.setText("Base de Datos:");
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel2.setText("Usuario:");
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel3.setText("Contraseña:");
+
+        labelResult.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        labelResult.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(30, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(checkInstance)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(labelResult, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(33, 33, 33)
+                        .addComponent(btnConnect))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel5)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel1)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addComponent(jLabel4))
+                        .addGap(40, 40, 40)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(textNameDB)
+                                .addComponent(textUser)
+                                .addComponent(textIP)
+                                .addComponent(textPass, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(textTCP, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(30, 30, 30))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(textIP, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(textTCP, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
+                    .addComponent(jLabel5))
+                .addGap(18, 18, 18)
+                .addComponent(checkInstance)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(textNameDB, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(textUser, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(textPass, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addGap(34, 34, 34)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(labelResult, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(33, 33, 33))
+        );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Preferencias", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 16))); // NOI18N
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        btnSave.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        btnSave.setText("GUARDAR CAMBIOS");
+        btnSave.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
+
+        btnCancel.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        btnCancel.setText("CANCELAR");
+        btnCancel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelActionPerformed(evt);
             }
         });
 
@@ -89,55 +220,30 @@ public class ConfigMenu extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(textTCP, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(checkInstance)
-                    .addComponent(btnConnect)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel3)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jLabel5)
-                                .addComponent(jLabel4)))
-                        .addGap(62, 62, 62)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(textNameDB)
-                            .addComponent(textUser)
-                            .addComponent(textIP, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)
-                            .addComponent(textPass))))
-                .addContainerGap(49, Short.MAX_VALUE))
+                        .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textIP, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
-                    .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textTCP, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
-                    .addComponent(jLabel5))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addComponent(checkInstance)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(textNameDB, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textUser, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textPass, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addGap(18, 18, 18)
-                .addComponent(btnConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
+                    .addComponent(btnCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         pack();
@@ -146,20 +252,28 @@ public class ConfigMenu extends javax.swing.JFrame {
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
         try {
             if (ConnectionDB.GetInstance().testConnection((textIP.getText()+":"+textTCP.getText()), textNameDB.getText(), textUser.getText(), String.valueOf(textPass.getPassword()), checkInstance.isSelected())) {
-                Preferencias.GetInstance().databaseName = textNameDB.getText();
-                Preferencias.GetInstance().user = textUser.getText();
-                Preferencias.GetInstance().password = String.valueOf(textPass.getPassword());
-                Preferencias.GetInstance().ip = textIP.getText();
-                Preferencias.GetInstance().tcp = textTCP.getText();
-                Preferencias.GetInstance().instance = checkInstance.isSelected();
-                InfoDialog.GetInstance().setLabelText("Conexión exitosa!");
-                InfoDialog.GetInstance().setLabelImage(true);
-                InfoDialog.GetInstance().setVisible(true);
+                Preferences.GetInstance().databaseName = textNameDB.getText();
+                Preferences.GetInstance().user = textUser.getText();
+                Preferences.GetInstance().password = String.valueOf(textPass.getPassword());
+                Preferences.GetInstance().ip = textIP.getText();
+                Preferences.GetInstance().tcp = textTCP.getText();
+                Preferences.GetInstance().instance = checkInstance.isSelected();        
+                labelResult.setOpaque(true);
+                labelResult.setBackground(Color.green);
+                labelResult.setText("CONEXIÓN EXITOSA!");
+                connectionSuccess = true;
+//                InfoDialog.GetInstance().setLabelText("Conexión exitosa!");
+//                InfoDialog.GetInstance().setLabelImage(true);
+//                InfoDialog.GetInstance().setVisible(true);
                 
             } else {
-                InfoDialog.GetInstance().setLabelText("Error en la conexión");
-                InfoDialog.GetInstance().setLabelImage(false);
-                InfoDialog.GetInstance().setVisible(true);
+                labelResult.setOpaque(true);
+                labelResult.setBackground(Color.red);
+                labelResult.setText("CONEXIÓN FALLIDA");
+                connectionSuccess = false;
+//                InfoDialog.GetInstance().setLabelText("Error en la conexión");
+//                InfoDialog.GetInstance().setLabelImage(false);
+//                InfoDialog.GetInstance().setVisible(true);
             }
         } catch (Exception ex) {
             System.out.println("ERROR: " + ex);
@@ -179,24 +293,52 @@ public class ConfigMenu extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_textTCPActionPerformed
 
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        onClose();
+    }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        if (connectionSuccess){
+            MainMenu.GetInstance().daemon = new Thread(new Daemon(), "Hilo principal"); 
+            MainMenu.GetInstance().daemon.start();
+            Preferences.GetInstance().DBconfigured = true;
+        }
+        else{
+            if (MainMenu.GetInstance().daemon != null){
+                try{
+                    MainMenu.GetInstance().daemon.interrupt();
+                }catch (IllegalThreadStateException ex){
+                    ex.printStackTrace();
+                }
+            }
+            Preferences.GetInstance().DBconfigured = false;
+        }
+        onClose();
+    }//GEN-LAST:event_btnSaveActionPerformed
+
     /**
      * @param args the command line arguments
      */
     public static ConfigMenu GetInstance() {
-        if (confWin == null) {
-            confWin = new ConfigMenu();
+        if (selfInstance == null) {
+            selfInstance = new ConfigMenu();
         }
-        return confWin;
+        return selfInstance;
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnConnect;
+    private javax.swing.JButton btnSave;
     private javax.swing.JCheckBox checkInstance;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel labelResult;
     private javax.swing.JTextField textIP;
     private javax.swing.JTextField textNameDB;
     private javax.swing.JPasswordField textPass;

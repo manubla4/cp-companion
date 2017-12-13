@@ -10,11 +10,11 @@ import java.sql.Statement;
 
 public class ConnectionDB {
 
-    static ConnectionDB selfInstance;
-    Statement st = null;
-    ResultSet rs = null;
-    Connection con = null;
-    String url;
+    private static ConnectionDB selfInstance;
+    public Statement st = null;
+    public ResultSet rs = null;
+    public Connection con = null;
+    private String url;
 
     
     static ConnectionDB GetInstance(){
@@ -28,9 +28,9 @@ public class ConnectionDB {
     public boolean testConnection(String server, String databaseName, String user, String password, boolean instance) throws ClassNotFoundException, Exception {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");       
-            url = "jdbc:sqlserver://" + server + ";databaseName=" + databaseName + ";user=" + user + ";password=" + password + ";integratedSecurity=true;";
+            url = "jdbc:sqlserver://" + server + ";databaseName=" + databaseName + ";user=" + user + ";password=" + password;
             if (instance) 
-                url = "jdbc:sqlserver://" + server + "\\SQLEXPRESS;databaseName=" + databaseName + ";user=" + user + ";password=" + password + ";integratedSecurity=true;";
+                url = "jdbc:sqlserver://" + server + "\\SQLEXPRESS;databaseName=" + databaseName + ";user=" + user + ";password=" + password;
             System.out.println("PROBANDO CONEXIÓN CON URL = " + url);
             con = DriverManager.getConnection(url);
             disconnect();
@@ -44,9 +44,9 @@ public class ConnectionDB {
     public void connect() throws ClassNotFoundException {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            url = "jdbc:sqlserver://" + Preferencias.GetInstance().ip +":"+Preferencias.GetInstance().tcp+ ";databaseName=" + Preferencias.GetInstance().databaseName + ";user=" + Preferencias.GetInstance().user + ";password=" + Preferencias.GetInstance().password + ";integratedSecurity=true;";
-            if (Preferencias.GetInstance().instance) 
-                url = "jdbc:sqlserver://" + Preferencias.GetInstance().ip +":"+Preferencias.GetInstance().tcp + "\\SQLEXPRESS;databaseName=" + Preferencias.GetInstance().databaseName + ";user=" + Preferencias.GetInstance().user + ";password=" + Preferencias.GetInstance().password + ";integratedSecurity=true;";
+            url = "jdbc:sqlserver://" + Preferences.GetInstance().ip +":"+Preferences.GetInstance().tcp+ ";databaseName=" + Preferences.GetInstance().databaseName + ";user=" + Preferences.GetInstance().user + ";password=" + Preferences.GetInstance().password;
+            if (Preferences.GetInstance().instance) 
+                url = "jdbc:sqlserver://" + Preferences.GetInstance().ip +":"+Preferences.GetInstance().tcp + "\\SQLEXPRESS;databaseName=" + Preferences.GetInstance().databaseName + ";user=" + Preferences.GetInstance().user + ";password=" + Preferences.GetInstance().password;
             con = DriverManager.getConnection(url);
             System.out.println("..................CONEXIÓN ESTABLECIDA..................");
         } catch (SQLException ex) {
@@ -55,7 +55,7 @@ public class ConnectionDB {
     }
 
 
-    public void disconnect() throws Exception {
+    public void disconnect() throws SQLException {
         if (con != null) {
             con.commit();
             con.close();
