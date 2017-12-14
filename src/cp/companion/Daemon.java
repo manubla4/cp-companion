@@ -18,23 +18,31 @@ import java.util.logging.Logger;
  */
 class Daemon implements Runnable {
     
-    String sqlQuery1 = "SELECT * FROM ARTICULOS";
-    String sqlQuery2 = "SELECT * FROM STOCKS";
-    
+    private String queryStocks = "SELECT st.CODARTICULO, ar.DESCRIPCION, st.CODALMACEN, al.NOMBREALMACEN, st.STOCK, st.MINIMO, st.MAXIMO FROM STOCKS st JOIN ARTICULOS ar ON ar.CODARTICULO = st.CODARTICULO JOIN ALMACEN al ON al.CODALMACEN = st.CODALMACEN";
+    private String queryVencimientos = "SELECT ar.CODARTICULO, ar.DESCRIPCION, cl.VENCIMIENTO FROM ARTICULOS ar JOIN ARTICULOSCAMPOSLIBRES cl ON ar.CODARTICULO = cl.CODARTICULO;";
+
     
     public void run() {
         try {
             while (true){
-                System.out.println("Me duermo!");
-                Thread.sleep(Preferences.GetInstance().time); 
-                System.out.println("Desperte!");
                 ConnectionDB.GetInstance().connect();
                 ConnectionDB.GetInstance().st = ConnectionDB.GetInstance().con.createStatement();
-                ConnectionDB.GetInstance().rs = ConnectionDB.GetInstance().st.executeQuery(sqlQuery1);
+                ConnectionDB.GetInstance().rs = ConnectionDB.GetInstance().st.executeQuery(queryStocks);
                 while (ConnectionDB.GetInstance().rs.next()){
-                    System.out.println(ConnectionDB.GetInstance().rs.getString("DESCRIPCION"));
+//                    System.out.println(ConnectionDB.GetInstance().rs.getFloat("STOCK") + " >= " +ConnectionDB.GetInstance().rs.getFloat("MAXIMO") + " ?");
+                    if (ConnectionDB.GetInstance().rs.getFloat("STOCK") >= ConnectionDB.GetInstance().rs.getFloat("MAXIMO")){
+//                        System.out.println("JACKPOT!");
+                        InfoDialog.GetInstance().setLabelText("STOCK MAXIMO ALCANZADO!");
+                        InfoDialog.GetInstance().setLabelImage(false);
+                        InfoDialog.GetInstance().setVisible(true);
+                    }               
+                    
                 }
                 ConnectionDB.GetInstance().disconnect();
+//                System.out.println("Me duermo!");
+                Thread.sleep(Preferences.GetInstance().time); 
+//                System.out.println("Desperte!");
+                
             }
         } 
         
@@ -44,9 +52,7 @@ class Daemon implements Runnable {
             Logger.getLogger(Daemon.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             Logger.getLogger(Daemon.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        
+        }      
         
     }
     

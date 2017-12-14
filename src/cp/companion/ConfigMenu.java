@@ -299,14 +299,17 @@ public class ConfigMenu extends javax.swing.JFrame {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         if (connectionSuccess){
-            MainMenu.GetInstance().daemon = new Thread(new Daemon(), "Hilo principal"); 
-            MainMenu.GetInstance().daemon.start();
             Preferences.GetInstance().DBconfigured = true;
+            if (MainMenu.GetInstance().daemon == null)
+                MainMenu.GetInstance().daemon = new Thread(new Daemon(), "Hilo daemon");                  
+            if (!MainMenu.GetInstance().daemon.isAlive())
+                MainMenu.GetInstance().daemon.start();         
         }
         else{
-            if (MainMenu.GetInstance().daemon != null){
+            if (MainMenu.GetInstance().daemon != null && MainMenu.GetInstance().daemon.isAlive()){
                 try{
                     MainMenu.GetInstance().daemon.interrupt();
+                    MainMenu.GetInstance().daemon = null;
                 }catch (IllegalThreadStateException ex){
                     ex.printStackTrace();
                 }

@@ -10,7 +10,7 @@ public class Preferences {
     public String databaseName = null;
     public boolean instance = false;
     public boolean DBconfigured = false;
-    public long time = 60000;   //1 minuto
+    public long time = 15000;   //60000 ms = 1 minuto
 
     public static Preferences GetInstance() {
         if (selfInstance == null) {
