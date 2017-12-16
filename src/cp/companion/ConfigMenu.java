@@ -1,8 +1,20 @@
 package cp.companion;
 
 import java.awt.Color;
+import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.util.Properties;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.ListModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 public class ConfigMenu extends javax.swing.JFrame {
 
@@ -21,6 +33,12 @@ public class ConfigMenu extends javax.swing.JFrame {
                 onClose();
             }
         });
+        ((SpinnerNumberModel) spinnerStock.getModel()).setMinimum(1);
+//        ((SpinnerNumberModel) spinnerVenc.getModel()).setMinimum(1);
+        alignCellsToCenter(tableArticlesStock,0);
+        alignCellsToCenter(tableArticlesStock,1);
+//        alignCellsToCenter(tableArticlesVenc,0);
+//        alignCellsToCenter(tableArticlesVenc,1);
     }
 
 
@@ -57,6 +75,21 @@ public class ConfigMenu extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         labelResult = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        spinnerStock = new javax.swing.JSpinner();
+        btnAssignStock = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tableArticlesStock = new javax.swing.JTable();
+        checkSelectAllStock = new javax.swing.JCheckBox();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tableArticlesVenc = new javax.swing.JTable();
+        jLabel10 = new javax.swing.JLabel();
+        spinnerVenc = new javax.swing.JSpinner();
+        btnAssignStock1 = new javax.swing.JButton();
+        checkSelectAllVenc = new javax.swing.JCheckBox();
+        jLabel7 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
         btnSave = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
 
@@ -64,10 +97,10 @@ public class ConfigMenu extends javax.swing.JFrame {
         setTitle("Configuración");
         setResizable(false);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Base de datos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 16))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "BASE DE DATOS", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 16))); // NOI18N
 
         btnConnect.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        btnConnect.setText("Test Conexión");
+        btnConnect.setText("Conectar");
         btnConnect.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnConnect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -133,7 +166,7 @@ public class ConfigMenu extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(labelResult, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(33, 33, 33)
-                        .addComponent(btnConnect))
+                        .addComponent(btnConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel5)
@@ -184,21 +217,224 @@ public class ConfigMenu extends javax.swing.JFrame {
                 .addGap(33, 33, 33))
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Preferencias", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 16))); // NOI18N
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "PREFERENCIAS", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 16))); // NOI18N
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel6.setText("Anticipación alerta stock");
+
+        jLabel9.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel9.setText("Alertar en stock:");
+
+        spinnerStock.setFont(new java.awt.Font("Consolas", 0, 15)); // NOI18N
+        spinnerStock.setValue(1);
+
+        btnAssignStock.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnAssignStock.setText("Asignar");
+        btnAssignStock.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnAssignStock.setMaximumSize(new java.awt.Dimension(77, 32));
+        btnAssignStock.setMinimumSize(new java.awt.Dimension(77, 32));
+        btnAssignStock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAssignStockActionPerformed(evt);
+            }
+        });
+
+        tableArticlesStock.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        tableArticlesStock.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {"", null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Código", "Artículo", ""
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tableArticlesStock.setRowHeight(20);
+        jScrollPane2.setViewportView(tableArticlesStock);
+
+        checkSelectAllStock.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        checkSelectAllStock.setText("Seleccionar todos");
+        checkSelectAllStock.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
+        checkSelectAllStock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkSelectAllStockActionPerformed(evt);
+            }
+        });
+
+        tableArticlesVenc.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        tableArticlesVenc.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {"", null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Código", "Artículo", ""
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tableArticlesVenc.setRowHeight(20);
+        jScrollPane3.setViewportView(tableArticlesVenc);
+
+        jLabel10.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel10.setText("Alertar días antes:");
+
+        spinnerVenc.setFont(new java.awt.Font("Consolas", 0, 15)); // NOI18N
+        spinnerVenc.setValue(1);
+
+        btnAssignStock1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnAssignStock1.setText("Asignar");
+        btnAssignStock1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnAssignStock1.setMaximumSize(new java.awt.Dimension(77, 32));
+        btnAssignStock1.setMinimumSize(new java.awt.Dimension(77, 32));
+        btnAssignStock1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAssignStock1ActionPerformed(evt);
+            }
+        });
+
+        checkSelectAllVenc.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        checkSelectAllVenc.setText("Seleccionar todos");
+        checkSelectAllVenc.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
+        checkSelectAllVenc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkSelectAllVencActionPerformed(evt);
+            }
+        });
+
+        jLabel7.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel7.setText("Anticipación alerta vencimiento");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(checkSelectAllStock)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, Short.MAX_VALUE)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btnAssignStock, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel9)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(spinnerStock, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addGap(0, 0, Short.MAX_VALUE)
+                                        .addComponent(checkSelectAllVenc))
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btnAssignStock1, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel10)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(spinnerVenc, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addGap(34, 34, 34))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addComponent(jLabel6)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel9)
+                            .addComponent(spinnerStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnAssignStock, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(checkSelectAllStock)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel7)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel10)
+                            .addComponent(spinnerVenc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnAssignStock1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addComponent(checkSelectAllVenc)
+                .addGap(26, 26, 26))
         );
 
+        checkSelectAllStock.getAccessibleContext().setAccessibleDescription("");
+
         btnSave.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
-        btnSave.setText("GUARDAR CAMBIOS");
+        btnSave.setText("GUARDAR ");
         btnSave.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -223,27 +459,27 @@ public class ConfigMenu extends javax.swing.JFrame {
                 .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(29, 29, 29)
+                        .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
-                    .addComponent(btnCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addGap(30, 30, 30)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30))
         );
 
         pack();
@@ -251,29 +487,17 @@ public class ConfigMenu extends javax.swing.JFrame {
 
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
         try {
-            if (ConnectionDB.GetInstance().testConnection((textIP.getText()+":"+textTCP.getText()), textNameDB.getText(), textUser.getText(), String.valueOf(textPass.getPassword()), checkInstance.isSelected())) {
-                Preferences.GetInstance().databaseName = textNameDB.getText();
-                Preferences.GetInstance().user = textUser.getText();
-                Preferences.GetInstance().password = String.valueOf(textPass.getPassword());
-                Preferences.GetInstance().ip = textIP.getText();
-                Preferences.GetInstance().tcp = textTCP.getText();
-                Preferences.GetInstance().instance = checkInstance.isSelected();        
+            if (ConnectionDB.GetInstance().testConnection((textIP.getText()+":"+textTCP.getText()), textNameDB.getText(), textUser.getText(), String.valueOf(textPass.getPassword()), checkInstance.isSelected())) {    
                 labelResult.setOpaque(true);
                 labelResult.setBackground(Color.green);
                 labelResult.setText("CONEXIÓN EXITOSA!");
                 connectionSuccess = true;
-//                InfoDialog.GetInstance().setLabelText("Conexión exitosa!");
-//                InfoDialog.GetInstance().setLabelImage(true);
-//                InfoDialog.GetInstance().setVisible(true);
                 
             } else {
                 labelResult.setOpaque(true);
                 labelResult.setBackground(Color.red);
                 labelResult.setText("CONEXIÓN FALLIDA");
                 connectionSuccess = false;
-//                InfoDialog.GetInstance().setLabelText("Error en la conexión");
-//                InfoDialog.GetInstance().setLabelImage(false);
-//                InfoDialog.GetInstance().setVisible(true);
             }
         } catch (Exception ex) {
             System.out.println("ERROR: " + ex);
@@ -297,9 +521,21 @@ public class ConfigMenu extends javax.swing.JFrame {
         onClose();
     }//GEN-LAST:event_btnCancelActionPerformed
 
+    
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        
+        Preferences.GetInstance().databaseName = textNameDB.getText();
+        Preferences.GetInstance().user = textUser.getText();
+        Preferences.GetInstance().password = String.valueOf(textPass.getPassword());
+        Preferences.GetInstance().ip = textIP.getText();
+        Preferences.GetInstance().tcp = textTCP.getText();
+        Preferences.GetInstance().instance = checkInstance.isSelected();
+        
         if (connectionSuccess){
             Preferences.GetInstance().DBconfigured = true;
+            MainMenu.GetInstance().getLabelCon().setText("CONECTADO");
+            MainMenu.GetInstance().getLabelCon().setOpaque(true);
+            MainMenu.GetInstance().getLabelCon().setBackground(Color.green);    
             if (MainMenu.GetInstance().daemon == null)
                 MainMenu.GetInstance().daemon = new Thread(new Daemon(), "Hilo daemon");                  
             if (!MainMenu.GetInstance().daemon.isAlive())
@@ -307,6 +543,9 @@ public class ConfigMenu extends javax.swing.JFrame {
         }
         else{
             if (MainMenu.GetInstance().daemon != null && MainMenu.GetInstance().daemon.isAlive()){
+                MainMenu.GetInstance().getLabelCon().setText("DESCONECTADO");
+                MainMenu.GetInstance().getLabelCon().setOpaque(true);
+                MainMenu.GetInstance().getLabelCon().setBackground(Color.red);    
                 try{
                     MainMenu.GetInstance().daemon.interrupt();
                     MainMenu.GetInstance().daemon = null;
@@ -316,8 +555,49 @@ public class ConfigMenu extends javax.swing.JFrame {
             }
             Preferences.GetInstance().DBconfigured = false;
         }
+     
+        
+        try {            
+            Properties props = new Properties();
+            props.setProperty("IP", Preferences.GetInstance().ip);
+            props.setProperty("TCP", Preferences.GetInstance().tcp);
+            props.setProperty("Database", Preferences.GetInstance().databaseName);
+            props.setProperty("User", Preferences.GetInstance().user);
+            props.setProperty("Password", Preferences.GetInstance().password);
+            props.setProperty("Instance", String.valueOf(Preferences.GetInstance().instance));
+            File f = new File("./config.properties");
+            OutputStream out = new FileOutputStream(f);
+            props.store(out, "USER PROPERTIES");
+        }
+        catch (Exception e ) {
+            e.printStackTrace();
+        }
+        
         onClose();
     }//GEN-LAST:event_btnSaveActionPerformed
+
+    
+    private void alignCellsToCenter(JTable table, int column) {
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        table.getColumnModel().getColumn(column).setCellRenderer(centerRenderer);
+    }
+    
+    private void btnAssignStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAssignStockActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnAssignStockActionPerformed
+
+    private void checkSelectAllStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkSelectAllStockActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_checkSelectAllStockActionPerformed
+
+    private void btnAssignStock1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAssignStock1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnAssignStock1ActionPerformed
+
+    private void checkSelectAllVencActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkSelectAllVencActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_checkSelectAllVencActionPerformed
 
     /**
      * @param args the command line arguments
@@ -330,18 +610,33 @@ public class ConfigMenu extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAssignStock;
+    private javax.swing.JButton btnAssignStock1;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnConnect;
     private javax.swing.JButton btnSave;
     private javax.swing.JCheckBox checkInstance;
+    private javax.swing.JCheckBox checkSelectAllStock;
+    private javax.swing.JCheckBox checkSelectAllVenc;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel labelResult;
+    private javax.swing.JSpinner spinnerStock;
+    private javax.swing.JSpinner spinnerVenc;
+    private javax.swing.JTable tableArticlesStock;
+    private javax.swing.JTable tableArticlesVenc;
     private javax.swing.JTextField textIP;
     private javax.swing.JTextField textNameDB;
     private javax.swing.JPasswordField textPass;

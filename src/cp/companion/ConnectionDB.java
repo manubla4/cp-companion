@@ -40,6 +40,24 @@ public class ConnectionDB {
             return false;
         }
     }
+    
+    
+    public boolean testConnectionSavedPrefs() throws ClassNotFoundException, Exception {
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");       
+            url = "jdbc:sqlserver://" + Preferences.GetInstance().ip +":"+Preferences.GetInstance().tcp+ ";databaseName=" + Preferences.GetInstance().databaseName + ";user=" + Preferences.GetInstance().user + ";password=" + Preferences.GetInstance().password;
+            if (Preferences.GetInstance().instance) 
+                url = "jdbc:sqlserver://" + Preferences.GetInstance().ip +":"+Preferences.GetInstance().tcp + "\\SQLEXPRESS;databaseName=" + Preferences.GetInstance().databaseName + ";user=" + Preferences.GetInstance().user + ";password=" + Preferences.GetInstance().password;
+            System.out.println("PROBANDO CONEXIÓN CON URL = " + url);
+            con = DriverManager.getConnection(url);
+            disconnect();
+            return true;
+        } catch (SQLException ex) {
+            System.out.println("ERROR PROBANDO CONEXIÓN: " + ex);
+            return false;
+        }
+    }
+    
 
     public void connect() throws ClassNotFoundException {
         try {
@@ -50,7 +68,7 @@ public class ConnectionDB {
             con = DriverManager.getConnection(url);
             System.out.println("..................CONEXIÓN ESTABLECIDA..................");
         } catch (SQLException ex) {
-            System.out.println("ERROR AL CONECTAR: " + ex);
+            System.out.println("ERROR AL CONECTAR: " + ex);        
         }
     }
 

@@ -5,10 +5,8 @@
  */
 package cp.companion;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
+import java.awt.Color;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,7 +31,7 @@ class Daemon implements Runnable {
                     if (ConnectionDB.GetInstance().rs.getFloat("STOCK") >= ConnectionDB.GetInstance().rs.getFloat("MAXIMO")){
 //                        System.out.println("JACKPOT!");
                         InfoDialog.GetInstance().setLabelText("STOCK MAXIMO ALCANZADO!");
-                        InfoDialog.GetInstance().setLabelImage(false);
+//                        InfoDialog.GetInstance().setLabelImage(false);
                         InfoDialog.GetInstance().setVisible(true);
                     }               
                     
@@ -51,6 +49,11 @@ class Daemon implements Runnable {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Daemon.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
+            MainMenu.GetInstance().daemon.interrupt();
+            MainMenu.GetInstance().daemon = null;
+            MainMenu.GetInstance().getLabelCon().setText("DESCONECTADO");
+            MainMenu.GetInstance().getLabelCon().setOpaque(true);
+            MainMenu.GetInstance().getLabelCon().setBackground(Color.red);        
             Logger.getLogger(Daemon.class.getName()).log(Level.SEVERE, null, ex);
         }      
         
