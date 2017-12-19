@@ -1,18 +1,16 @@
 package cp.companion;
 
 import java.awt.Color;
-import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.util.Properties;
-import javax.swing.JCheckBox;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -20,6 +18,9 @@ public class ConfigMenu extends javax.swing.JFrame {
 
     private static ConfigMenu selfInstance = null;
     private boolean connectionSuccess = false;
+    private String encryptedText;
+    public static final String configKey = "asSApoS654sl518";
+    private ConnectionDB conDB = new ConnectionDB();
     
     /**
      * Creates new form ConfiguracionBD
@@ -34,11 +35,13 @@ public class ConfigMenu extends javax.swing.JFrame {
             }
         });
         ((SpinnerNumberModel) spinnerStock.getModel()).setMinimum(1);
-//        ((SpinnerNumberModel) spinnerVenc.getModel()).setMinimum(1);
+        ((SpinnerNumberModel) spinnerVenc.getModel()).setMinimum(1);
         alignCellsToCenter(tableArticlesStock,0);
         alignCellsToCenter(tableArticlesStock,1);
-//        alignCellsToCenter(tableArticlesVenc,0);
-//        alignCellsToCenter(tableArticlesVenc,1);
+        alignCellsToCenter(tableArticlesVenc,0);
+        alignCellsToCenter(tableArticlesVenc,1);
+        tableArticlesStock.getTableHeader().setReorderingAllowed(false);
+        tableArticlesVenc.getTableHeader().setReorderingAllowed(false);        
     }
 
 
@@ -487,7 +490,7 @@ public class ConfigMenu extends javax.swing.JFrame {
 
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
         try {
-            if (ConnectionDB.GetInstance().testConnection((textIP.getText()+":"+textTCP.getText()), textNameDB.getText(), textUser.getText(), String.valueOf(textPass.getPassword()), checkInstance.isSelected())) {    
+            if (conDB.testConnection((textIP.getText()+":"+textTCP.getText()), textNameDB.getText(), textUser.getText(), String.valueOf(textPass.getPassword()), checkInstance.isSelected())) {    
                 labelResult.setOpaque(true);
                 labelResult.setBackground(Color.green);
                 labelResult.setText("CONEXIÓN EXITOSA!");
@@ -529,7 +532,7 @@ public class ConfigMenu extends javax.swing.JFrame {
         Preferences.GetInstance().password = String.valueOf(textPass.getPassword());
         Preferences.GetInstance().ip = textIP.getText();
         Preferences.GetInstance().tcp = textTCP.getText();
-        Preferences.GetInstance().instance = checkInstance.isSelected();
+        Preferences.GetInstance().instance = checkInstance.isSelected();       
         
         if (connectionSuccess){
             Preferences.GetInstance().DBconfigured = true;
@@ -555,16 +558,24 @@ public class ConfigMenu extends javax.swing.JFrame {
             }
             Preferences.GetInstance().DBconfigured = false;
         }
-     
         
+        try {
+            String myKey = TextEncryptor.encrypt(TextEncryptor.SECRET_KEY, configKey);
+            encryptedText = TextEncryptor.encrypt(Preferences.GetInstance().password, myKey);
+    
+        }catch (Exception ex) {
+            Logger.getLogger(ConfigMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         try {            
             Properties props = new Properties();
             props.setProperty("IP", Preferences.GetInstance().ip);
             props.setProperty("TCP", Preferences.GetInstance().tcp);
             props.setProperty("Database", Preferences.GetInstance().databaseName);
             props.setProperty("User", Preferences.GetInstance().user);
-            props.setProperty("Password", Preferences.GetInstance().password);
+            props.setProperty("Password", encryptedText);
             props.setProperty("Instance", String.valueOf(Preferences.GetInstance().instance));
+            props.setProperty("DBconfigured", String.valueOf(Preferences.GetInstance().DBconfigured));
             File f = new File("./config.properties");
             OutputStream out = new FileOutputStream(f);
             props.store(out, "USER PROPERTIES");
@@ -587,10 +598,6 @@ public class ConfigMenu extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnAssignStockActionPerformed
 
-    private void checkSelectAllStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkSelectAllStockActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_checkSelectAllStockActionPerformed
-
     private void btnAssignStock1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAssignStock1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnAssignStock1ActionPerformed
@@ -598,6 +605,10 @@ public class ConfigMenu extends javax.swing.JFrame {
     private void checkSelectAllVencActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkSelectAllVencActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_checkSelectAllVencActionPerformed
+
+    private void checkSelectAllStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkSelectAllStockActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_checkSelectAllStockActionPerformed
 
     /**
      * @param args the command line arguments

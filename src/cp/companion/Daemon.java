@@ -16,19 +16,19 @@ import java.util.logging.Logger;
  */
 class Daemon implements Runnable {
     
-    private String queryStocks = "SELECT st.CODARTICULO, ar.DESCRIPCION, st.CODALMACEN, al.NOMBREALMACEN, st.STOCK, st.MINIMO, st.MAXIMO FROM STOCKS st JOIN ARTICULOS ar ON ar.CODARTICULO = st.CODARTICULO JOIN ALMACEN al ON al.CODALMACEN = st.CODALMACEN";
-    private String queryVencimientos = "SELECT ar.CODARTICULO, ar.DESCRIPCION, cl.VENCIMIENTO FROM ARTICULOS ar JOIN ARTICULOSCAMPOSLIBRES cl ON ar.CODARTICULO = cl.CODARTICULO;";
-
+    static final String queryStocks = "SELECT st.CODARTICULO, ar.DESCRIPCION, st.CODALMACEN, al.NOMBREALMACEN, st.STOCK, st.MINIMO, st.MAXIMO FROM STOCKS st JOIN ARTICULOS ar ON ar.CODARTICULO = st.CODARTICULO JOIN ALMACEN al ON al.CODALMACEN = st.CODALMACEN";
+    static final String queryVencimientos = "SELECT ar.CODARTICULO, ar.DESCRIPCION, cl.VENCIMIENTO FROM ARTICULOS ar JOIN ARTICULOSCAMPOSLIBRES cl ON ar.CODARTICULO = cl.CODARTICULO;";
+    private ConnectionDB conDB = new ConnectionDB();
     
     public void run() {
         try {
             while (true){
-                ConnectionDB.GetInstance().connect();
-                ConnectionDB.GetInstance().st = ConnectionDB.GetInstance().con.createStatement();
-                ConnectionDB.GetInstance().rs = ConnectionDB.GetInstance().st.executeQuery(queryStocks);
-                while (ConnectionDB.GetInstance().rs.next()){
-//                    System.out.println(ConnectionDB.GetInstance().rs.getFloat("STOCK") + " >= " +ConnectionDB.GetInstance().rs.getFloat("MAXIMO") + " ?");
-                    if (ConnectionDB.GetInstance().rs.getFloat("STOCK") >= ConnectionDB.GetInstance().rs.getFloat("MAXIMO")){
+                conDB.connect();
+                conDB.st = conDB.con.createStatement();
+                conDB.rs = conDB.st.executeQuery(queryStocks);
+                while (conDB.rs.next()){
+//                    System.out.println(conDB.rs.getFloat("STOCK") + " >= " +conDB.rs.getFloat("MAXIMO") + " ?");
+                    if (conDB.rs.getFloat("STOCK") >= conDB.rs.getFloat("MAXIMO")){
 //                        System.out.println("JACKPOT!");
                         InfoDialog.GetInstance().setLabelText("STOCK MAXIMO ALCANZADO!");
 //                        InfoDialog.GetInstance().setLabelImage(false);
@@ -36,7 +36,7 @@ class Daemon implements Runnable {
                     }               
                     
                 }
-                ConnectionDB.GetInstance().disconnect();
+                conDB.disconnect();
 //                System.out.println("Me duermo!");
                 Thread.sleep(Preferences.GetInstance().time); 
 //                System.out.println("Desperte!");

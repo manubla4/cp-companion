@@ -12,9 +12,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.table.DefaultTableModel;
 
 
 /**
@@ -26,9 +30,13 @@ public class MainMenu extends javax.swing.JFrame {
 
     private static MainMenu selfInstance = null;
     public Thread daemon = null;    
-    Properties prop = new Properties();
-    InputStream input = null;
-    File file;
+    private Properties prop = new Properties();
+    private InputStream input = null;
+    private File file;
+    private ConnectionDB conDB = new ConnectionDB();
+    private DefaultTableModel modelStocks;
+    private DefaultTableModel modelVenc;
+    private boolean configLoaded = false;
     
     /**
      * Creates new form MainMenu
@@ -37,35 +45,53 @@ public class MainMenu extends javax.swing.JFrame {
         initComponents();        
         this.setLocationRelativeTo(null);
         
+        tableStocks.getTableHeader().setReorderingAllowed(false);
+        tableVencimientos.getTableHeader().setReorderingAllowed(false);
+        
         URL url = this.getClass().getResource("resources/logo.png");  
         ImageIcon icon = new ImageIcon(url);  
         Image img = icon.getImage();
-        Image img2 = img.getScaledInstance(500, 100,  java.awt.Image.SCALE_SMOOTH);
+        Image img2 = img.getScaledInstance(470, 92,  java.awt.Image.SCALE_SMOOTH);
         ImageIcon icon2 = new ImageIcon(img2);
         labelLogo.setIcon(icon2);    
         
         labelConnection.setText("DESCONECTADO");
         labelConnection.setOpaque(true);
         labelConnection.setBackground(Color.red);   
+      
+        modelStocks = (DefaultTableModel) tableStocks.getModel();
+        modelVenc = (DefaultTableModel) tableVencimientos.getModel();
         
         file = new File("config.properties");
         if(file.exists() && !file.isDirectory()){
-            try {
-            input = new FileInputStream("config.properties");
-            prop.load(input);
-            Preferences.GetInstance().ip = prop.getProperty("IP");
-            Preferences.GetInstance().tcp = prop.getProperty("TCP");
-            Preferences.GetInstance().databaseName = prop.getProperty("Database");
-            Preferences.GetInstance().user = prop.getProperty("User");
-            Preferences.GetInstance().password = prop.getProperty("Password");
-            Preferences.GetInstance().instance = Boolean.valueOf(prop.getProperty("Instance"));
             
-            if (ConnectionDB.GetInstance().testConnectionSavedPrefs()){ 
-                labelConnection.setText("CONECTADO");
-                labelConnection.setOpaque(true);
-                labelConnection.setBackground(Color.green);    
-            }
-            
+            try{
+                input = new FileInputStream("config.properties");
+                prop.load(input);   
+                     
+                if (checkConfigFile()){
+                    String myKey = TextEncryptor.encrypt(TextEncryptor.SECRET_KEY, ConfigMenu.configKey);
+                    String decryptedPassword = TextEncryptor.decrypt(prop.getProperty("Password"), myKey); 
+                    Preferences.GetInstance().ip = prop.getProperty("IP");
+                    Preferences.GetInstance().tcp = prop.getProperty("TCP");
+                    Preferences.GetInstance().databaseName = prop.getProperty("Database");
+                    Preferences.GetInstance().user = prop.getProperty("User");
+                    Preferences.GetInstance().password = decryptedPassword;
+                    Preferences.GetInstance().instance = Boolean.valueOf(prop.getProperty("Instance"));
+                    Preferences.GetInstance().DBconfigured = Boolean.valueOf(prop.getProperty("DBconfigured"));
+
+                    if (Preferences.GetInstance().DBconfigured && conDB.testConnectionSavedPrefs()){ 
+                        labelConnection.setText("CONECTADO");
+                        labelConnection.setOpaque(true);
+                        labelConnection.setBackground(Color.green);  
+                        refreshTables();
+                        if (daemon == null)
+                            daemon = new Thread(new Daemon(), "Hilo daemon");                  
+                        if (!daemon.isAlive())
+                            daemon.start();    
+                    }            
+                }
+                
             }catch (IOException ex){
                 ex.printStackTrace();
             }catch (Exception ex){
@@ -149,9 +175,16 @@ public class MainMenu extends javax.swing.JFrame {
             Class[] types = new Class [] {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         jScrollPane1.setViewportView(tableStocks);
@@ -308,6 +341,24 @@ public class MainMenu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
    
+    public void refreshTables(){
+        try {
+            conDB.connect();
+            conDB.st = conDB.con.createStatement();
+            conDB.rs = conDB.st.executeQuery(Daemon.queryStocks);
+            while (conDB.rs.next()){
+                modelStocks.addRow(new Object[]{conDB.rs.getString("CODARTICULO"), conDB.rs.getString("DESCRIPCION"), conDB.rs.getString("NOMBREALMACEN"), conDB.rs.getString("STOCK"), conDB.rs.getString("MINIMO"), conDB.rs.getString("MAXIMO")});           
+            }
+            conDB.disconnect();
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+    }
     
     private void btnConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigActionPerformed
         this.setEnabled(false);
@@ -316,8 +367,13 @@ public class MainMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_btnConfigActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
-        // Ir contra la base, traer las cosas y refrescar las tablas
-        //refreshTables();
+        try {
+            if (configLoaded && Preferences.GetInstance().DBconfigured && conDB.testConnectionSavedPrefs()){
+                refreshTables();
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btnRefreshActionPerformed
     
     static MainMenu GetInstance(){
@@ -327,6 +383,16 @@ public class MainMenu extends javax.swing.JFrame {
         return selfInstance;
     }
     
+    private boolean checkConfigFile(){
+        if (prop.getProperty("IP") != null && prop.getProperty("TCP") != null && prop.getProperty("Database") != null && prop.getProperty("User") != null && prop.getProperty("Password") != null){
+            if ((prop.getProperty("Instance") != null && (prop.getProperty("Instance").compareTo("true") == 0 || prop.getProperty("Instance").compareTo("false") == 0)) && (prop.getProperty("DBconfigured") != null && (prop.getProperty("DBconfigured").compareTo("true") == 0 || prop.getProperty("DBconfigured").compareTo("false") == 0))){
+                configLoaded = true;
+                return configLoaded;
+            }
+        }
+        configLoaded = false;
+        return configLoaded;
+    }
     
     /**
      * @param args the command line arguments

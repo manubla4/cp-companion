@@ -10,19 +10,19 @@ import java.sql.Statement;
 
 public class ConnectionDB {
 
-    private static ConnectionDB selfInstance;
+//    private static ConnectionDB selfInstance;
     public Statement st = null;
     public ResultSet rs = null;
     public Connection con = null;
     private String url;
 
     
-    static ConnectionDB GetInstance(){
-        if (selfInstance == null){
-            selfInstance = new ConnectionDB();
-        }
-        return selfInstance;
-    }
+//    static ConnectionDB GetInstance(){
+//        if (selfInstance == null){
+//            selfInstance = new ConnectionDB();
+//        }
+//        return selfInstance;
+//    }
     
     
     public boolean testConnection(String server, String databaseName, String user, String password, boolean instance) throws ClassNotFoundException, Exception {
