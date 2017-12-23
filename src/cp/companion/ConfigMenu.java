@@ -28,11 +28,20 @@ public class ConfigMenu extends javax.swing.JFrame {
     public ConfigMenu() {
         initComponents();
         this.setLocationRelativeTo(null);
-        this.setDefaultCloseOperation(HIDE_ON_CLOSE);      
+        this.setDefaultCloseOperation(HIDE_ON_CLOSE); 
+        this.setAlwaysOnTop(true);
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {          
                 onClose();
             }
+            
+            public void windowIconified(WindowEvent e) {
+                MainMenu.GetInstance().setState(ICONIFIED);
+             }
+            
+             public void windowDeiconified(WindowEvent e) {
+                 MainMenu.GetInstance().setState(NORMAL);
+             }
         });
         ((SpinnerNumberModel) spinnerStock.getModel()).setMinimum(1);
         ((SpinnerNumberModel) spinnerVenc.getModel()).setMinimum(1);
@@ -41,8 +50,17 @@ public class ConfigMenu extends javax.swing.JFrame {
         alignCellsToCenter(tableArticlesVenc,0);
         alignCellsToCenter(tableArticlesVenc,1);
         tableArticlesStock.getTableHeader().setReorderingAllowed(false);
-        tableArticlesVenc.getTableHeader().setReorderingAllowed(false);        
+        tableArticlesVenc.getTableHeader().setReorderingAllowed(false); 
+        ((DefaultTableCellRenderer)tableArticlesStock.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
+        ((DefaultTableCellRenderer)tableArticlesVenc.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
+        
+        textIP.setText(Preferences.GetInstance().ip);
+        textTCP.setText(Preferences.GetInstance().tcp);
+        textNameDB.setText(Preferences.GetInstance().databaseName);
+        textUser.setText(Preferences.GetInstance().user);
+        
     }
+
 
 
     
@@ -103,7 +121,7 @@ public class ConfigMenu extends javax.swing.JFrame {
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "BASE DE DATOS", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 16))); // NOI18N
 
         btnConnect.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        btnConnect.setText("Conectar");
+        btnConnect.setText("Test Conexión");
         btnConnect.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnConnect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -168,8 +186,8 @@ public class ConfigMenu extends javax.swing.JFrame {
                     .addComponent(checkInstance)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(labelResult, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(33, 33, 33)
-                        .addComponent(btnConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(1, 1, 1)
+                        .addComponent(btnConnect))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel5)
@@ -469,7 +487,7 @@ public class ConfigMenu extends javax.swing.JFrame {
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -538,7 +556,9 @@ public class ConfigMenu extends javax.swing.JFrame {
             Preferences.GetInstance().DBconfigured = true;
             MainMenu.GetInstance().getLabelCon().setText("CONECTADO");
             MainMenu.GetInstance().getLabelCon().setOpaque(true);
-            MainMenu.GetInstance().getLabelCon().setBackground(Color.green);    
+            MainMenu.GetInstance().getLabelCon().setBackground(Color.green);  
+            Preferences.GetInstance().DBConnected = true;
+            MainMenu.GetInstance().refreshTables();
             if (MainMenu.GetInstance().daemon == null)
                 MainMenu.GetInstance().daemon = new Thread(new Daemon(), "Hilo daemon");                  
             if (!MainMenu.GetInstance().daemon.isAlive())
@@ -548,7 +568,9 @@ public class ConfigMenu extends javax.swing.JFrame {
             if (MainMenu.GetInstance().daemon != null && MainMenu.GetInstance().daemon.isAlive()){
                 MainMenu.GetInstance().getLabelCon().setText("DESCONECTADO");
                 MainMenu.GetInstance().getLabelCon().setOpaque(true);
-                MainMenu.GetInstance().getLabelCon().setBackground(Color.red);    
+                MainMenu.GetInstance().getLabelCon().setBackground(Color.red);   
+                Preferences.GetInstance().DBConnected = false;
+                MainMenu.GetInstance().cleanTables();
                 try{
                     MainMenu.GetInstance().daemon.interrupt();
                     MainMenu.GetInstance().daemon = null;

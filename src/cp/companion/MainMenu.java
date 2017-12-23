@@ -6,6 +6,7 @@
 package cp.companion;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,6 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 
@@ -47,11 +50,21 @@ public class MainMenu extends javax.swing.JFrame {
         
         tableStocks.getTableHeader().setReorderingAllowed(false);
         tableVencimientos.getTableHeader().setReorderingAllowed(false);
+        alignCellsToCenter(tableStocks);
+        alignCellsToCenter(tableVencimientos);
+        ((DefaultTableCellRenderer)tableStocks.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
+        ((DefaultTableCellRenderer)tableVencimientos.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
+        tableStocks.getColumnModel().getColumn(0).setPreferredWidth(10);
+        tableStocks.getColumnModel().getColumn(3).setPreferredWidth(10);
+        tableStocks.getColumnModel().getColumn(4).setPreferredWidth(10);
+        tableStocks.getColumnModel().getColumn(5).setPreferredWidth(10);
+        tableStocks.getTableHeader().setFont(new Font("Tahoma", Font.BOLD, 15));
+        tableVencimientos.getTableHeader().setFont(new Font("Tahoma", Font.BOLD, 15));
         
         URL url = this.getClass().getResource("resources/logo.png");  
         ImageIcon icon = new ImageIcon(url);  
         Image img = icon.getImage();
-        Image img2 = img.getScaledInstance(470, 92,  java.awt.Image.SCALE_SMOOTH);
+        Image img2 = img.getScaledInstance(490, 98,  java.awt.Image.SCALE_SMOOTH);
         ImageIcon icon2 = new ImageIcon(img2);
         labelLogo.setIcon(icon2);    
         
@@ -79,17 +92,26 @@ public class MainMenu extends javax.swing.JFrame {
                     Preferences.GetInstance().password = decryptedPassword;
                     Preferences.GetInstance().instance = Boolean.valueOf(prop.getProperty("Instance"));
                     Preferences.GetInstance().DBconfigured = Boolean.valueOf(prop.getProperty("DBconfigured"));
-
+                    if (Preferences.GetInstance().ip.compareTo("") == 0)
+                        Preferences.GetInstance().ip = "localhost";
+                    if (Preferences.GetInstance().tcp.compareTo("") == 0)
+                        Preferences.GetInstance().tcp = "1433";
+                    configLoaded = true;
+                    
                     if (Preferences.GetInstance().DBconfigured && conDB.testConnectionSavedPrefs()){ 
                         labelConnection.setText("CONECTADO");
                         labelConnection.setOpaque(true);
                         labelConnection.setBackground(Color.green);  
+                        Preferences.GetInstance().DBConnected = true;
                         refreshTables();
                         if (daemon == null)
                             daemon = new Thread(new Daemon(), "Hilo daemon");                  
                         if (!daemon.isAlive())
                             daemon.start();    
                     }            
+                }
+                else {
+                    configLoaded = false;
                 }
                 
             }catch (IOException ex){
@@ -135,6 +157,7 @@ public class MainMenu extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         btnRefresh = new javax.swing.JButton();
         labelConnection = new javax.swing.JLabel();
+        btnConnect = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("CP Companion");
@@ -149,24 +172,13 @@ public class MainMenu extends javax.swing.JFrame {
         });
 
         jTabbedPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jTabbedPane1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jTabbedPane1.setFont(new java.awt.Font("Tahoma", 1, 17)); // NOI18N
 
+        tableStocks.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         tableStocks.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+
             },
             new String [] {
                 "Artículo", "Descripción", "Almacen", "Stock", "Mínimo", "Máximo"
@@ -187,6 +199,7 @@ public class MainMenu extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tableStocks.setRowHeight(25);
         jScrollPane1.setViewportView(tableStocks);
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
@@ -210,7 +223,7 @@ public class MainMenu extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addGap(25, 25, 25)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 376, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Stocks", jPanel1);
@@ -220,21 +233,7 @@ public class MainMenu extends javax.swing.JFrame {
 
         tableVencimientos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
                 "Artículo", "Descripción", "Vencimiento"
@@ -268,7 +267,7 @@ public class MainMenu extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addGap(25, 25, 25)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 376, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Vencimientos", jPanel2);
@@ -291,26 +290,37 @@ public class MainMenu extends javax.swing.JFrame {
         labelConnection.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelConnection.setText("CONECTADO");
 
+        btnConnect.setText("Conectar / Desconectar");
+        btnConnect.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnConnect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConnectActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(37, 37, 37)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel1)
-                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 786, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(16, 16, 16)
+                        .addGap(37, 37, 37)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel1)
+                            .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 786, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(53, 53, 53)
                         .addComponent(labelLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 595, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(26, 26, 26)
-                                .addComponent(btnConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(labelConnection, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnConnect, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(labelConnection, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(btnRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(38, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -326,9 +336,11 @@ public class MainMenu extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(btnConfig, javax.swing.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
                             .addComponent(btnRefresh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
                         .addComponent(labelConnection, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(33, 33, 33)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 506, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel1)
@@ -340,24 +352,42 @@ public class MainMenu extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void alignCellsToCenter(JTable table) {
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }     
+    }
    
-    public void refreshTables(){
-        try {
-            conDB.connect();
-            conDB.st = conDB.con.createStatement();
-            conDB.rs = conDB.st.executeQuery(Daemon.queryStocks);
-            while (conDB.rs.next()){
-                modelStocks.addRow(new Object[]{conDB.rs.getString("CODARTICULO"), conDB.rs.getString("DESCRIPCION"), conDB.rs.getString("NOMBREALMACEN"), conDB.rs.getString("STOCK"), conDB.rs.getString("MINIMO"), conDB.rs.getString("MAXIMO")});           
-            }
-            conDB.disconnect();
-            
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+    
+    public void cleanTables(){
+        while (modelStocks.getRowCount() != 0){
+            modelStocks.removeRow(0);
         }
-        
-        
+    }
+    
+    public void refreshTables(){   
+        if (Preferences.GetInstance().DBConnected == true && Preferences.GetInstance().DBconfigured){         
+            try {
+                if (conDB.testConnectionSavedPrefs()){
+                    cleanTables();   
+                    conDB.connect();
+                    conDB.st = conDB.con.createStatement();
+                    conDB.rs = conDB.st.executeQuery(Daemon.queryStocks);
+                    while (conDB.rs.next()){
+                        modelStocks.addRow(new Object[]{conDB.rs.getString("CODARTICULO"), conDB.rs.getString("DESCRIPCION"), conDB.rs.getString("NOMBREALMACEN"), conDB.rs.getInt("STOCK"), conDB.rs.getInt("MINIMO"), conDB.rs.getInt("MAXIMO")});           
+                    }
+                    conDB.disconnect();
+                }
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
+                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }       
     }
     
     private void btnConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigActionPerformed
@@ -367,14 +397,31 @@ public class MainMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_btnConfigActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
-        try {
-            if (configLoaded && Preferences.GetInstance().DBconfigured && conDB.testConnectionSavedPrefs()){
-                refreshTables();
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        refreshTables();
     }//GEN-LAST:event_btnRefreshActionPerformed
+
+    private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
+        if (Preferences.GetInstance().DBConnected == true){
+            labelConnection.setText("DESCONECTADO");
+            labelConnection.setOpaque(true);
+            labelConnection.setBackground(Color.red); 
+            Preferences.GetInstance().DBConnected = false;
+            cleanTables();
+            daemon.interrupt();
+            daemon = null;
+        }
+        else{
+            labelConnection.setText("CONECTADO");
+            labelConnection.setOpaque(true);
+            labelConnection.setBackground(Color.green);  
+            Preferences.GetInstance().DBConnected = true;
+            refreshTables();
+            if (daemon == null)
+                daemon = new Thread(new Daemon(), "Hilo daemon");                  
+            if (!daemon.isAlive())
+                daemon.start();   
+        }
+    }//GEN-LAST:event_btnConnectActionPerformed
     
     static MainMenu GetInstance(){
         if (selfInstance == null){
@@ -386,12 +433,10 @@ public class MainMenu extends javax.swing.JFrame {
     private boolean checkConfigFile(){
         if (prop.getProperty("IP") != null && prop.getProperty("TCP") != null && prop.getProperty("Database") != null && prop.getProperty("User") != null && prop.getProperty("Password") != null){
             if ((prop.getProperty("Instance") != null && (prop.getProperty("Instance").compareTo("true") == 0 || prop.getProperty("Instance").compareTo("false") == 0)) && (prop.getProperty("DBconfigured") != null && (prop.getProperty("DBconfigured").compareTo("true") == 0 || prop.getProperty("DBconfigured").compareTo("false") == 0))){
-                configLoaded = true;
-                return configLoaded;
+                return true;
             }
         }
-        configLoaded = false;
-        return configLoaded;
+        return false;
     }
     
     /**
@@ -431,6 +476,7 @@ public class MainMenu extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConfig;
+    private javax.swing.JButton btnConnect;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
