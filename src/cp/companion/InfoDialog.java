@@ -17,9 +17,7 @@ public class InfoDialog extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(InfoDialog.DISPOSE_ON_CLOSE);
-        
-        labelImage.setText("");
-        
+                
     }
     
 
@@ -32,21 +30,7 @@ public class InfoDialog extends javax.swing.JFrame {
     }
 
         
-    public void setLabelImage (boolean success)
-    {
-        String path;
-        if (success){path = "resources/success.png";}
-        else {path = "resources/alert.png";}
-        
-        URL url = this.getClass().getResource(path);  
-        ImageIcon icon = new ImageIcon(url);  
-        Image img = icon.getImage();
-        Image img2 = img.getScaledInstance(27, 27,  java.awt.Image.SCALE_SMOOTH);
-        ImageIcon icon2 = new ImageIcon(img2);
-        labelImage.setIcon(icon2);
-    }
-        
-        
+
     public void setLabelText (String text)
     {
         labelInfo.setText(text);
@@ -63,7 +47,6 @@ public class InfoDialog extends javax.swing.JFrame {
 
         labelInfo = new javax.swing.JLabel();
         btnAceptar1 = new javax.swing.JButton();
-        labelImage = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Aviso");
@@ -81,31 +64,25 @@ public class InfoDialog extends javax.swing.JFrame {
             }
         });
 
-        labelImage.setText("jLabel1");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(26, Short.MAX_VALUE)
-                .addComponent(labelImage)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(labelInfo)
-                .addGap(50, 50, 50))
             .addGroup(layout.createSequentialGroup()
                 .addGap(132, 132, 132)
                 .addComponent(btnAceptar1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(142, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(labelInfo)
+                .addGap(63, 63, 63))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(36, 36, 36)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(labelInfo)
-                    .addComponent(labelImage, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
+                .addContainerGap(35, Short.MAX_VALUE)
+                .addComponent(labelInfo)
+                .addGap(28, 28, 28)
                 .addComponent(btnAceptar1)
                 .addContainerGap())
         );
@@ -120,7 +97,6 @@ public class InfoDialog extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar1;
-    private javax.swing.JLabel labelImage;
     private javax.swing.JLabel labelInfo;
     // End of variables declaration//GEN-END:variables
 }

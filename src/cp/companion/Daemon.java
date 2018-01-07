@@ -30,7 +30,7 @@ class Daemon implements Runnable {
 //                    System.out.println(conDB.rs.getFloat("STOCK") + " >= " +conDB.rs.getFloat("MAXIMO") + " ?");
                     if (conDB.rs.getFloat("STOCK") >= conDB.rs.getFloat("MAXIMO")){
 //                        System.out.println("JACKPOT!");
-                        InfoDialog.GetInstance().setLabelText("STOCK MAXIMO ALCANZADO!");
+                        InfoDialog.GetInstance().setLabelText("STOCK MINIMO ALCANZADO!");
 //                        InfoDialog.GetInstance().setLabelImage(false);
                         InfoDialog.GetInstance().setVisible(true);
                     }               

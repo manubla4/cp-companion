@@ -11,7 +11,7 @@ public class Preferences {
     public boolean instance = false;
     public boolean DBconfigured = false;
     public boolean DBConnected = false;
-    public long time = 15000;   //60000 ms = 1 minuto
+    public long time = 25000;   //60000 ms = 1 minuto
 
     public static Preferences GetInstance() {
         if (selfInstance == null) {
