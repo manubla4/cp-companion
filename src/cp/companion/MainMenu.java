@@ -374,30 +374,19 @@ public class MainMenu extends javax.swing.JFrame {
     }
     
     public void refreshTables(){          
-        try {
-            if (Preferences.GetInstance().DBconfigured && Preferences.GetInstance().DBConnected && conDB.testConnectionSavedPrefs()){ 
-                cleanTables();   
-                conDB.connect();
-                conDB.st = conDB.con.createStatement();
-                conDB.rs = conDB.st.executeQuery(Daemon.queryStocks);
-                while (conDB.rs.next()){
-                    modelStocks.addRow(new Object[]{conDB.rs.getString("CODARTICULO"), conDB.rs.getString("DESCRIPCION"), conDB.rs.getString("NOMBREALMACEN"), conDB.rs.getInt("STOCK"), conDB.rs.getInt("MINIMO"), conDB.rs.getInt("MAXIMO")});           
-                }
-                conDB.st = conDB.con.createStatement();
-                conDB.rs = conDB.st.executeQuery(Daemon.queryVencimientos);
-                while (conDB.rs.next()){
-                    modelVenc.addRow(new Object[]{conDB.rs.getString("CODARTICULO"), conDB.rs.getString("DESCRIPCION"), conDB.rs.getString("VENCIMIENTO")});           
-                }
-                conDB.disconnect();
+        if (Preferences.GetInstance().DBconfigured && Preferences.GetInstance().DBConnected && conDB.testConnectionSavedPrefs()){ 
+            cleanTables();   
+            conDB.connect();
+            conDB.createAndExecuteQueryStocks();
+            while (conDB.RSgetNext()){
+                modelStocks.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION"), conDB.RSgetString("NOMBREALMACEN"), conDB.RSgetInt("STOCK"), conDB.RSgetInt("MINIMO"), conDB.RSgetInt("MAXIMO")});           
             }
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (Exception ex) {
-            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-        }
-               
+            conDB.createAndExecuteQueryVenc();
+            while (conDB.RSgetNext()){
+                modelVenc.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION"), conDB.RSgetString("VENCIMIENTO")});           
+            }
+            conDB.disconnect();
+        }                  
     }
     
     private void btnConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigActionPerformed
@@ -411,31 +400,27 @@ public class MainMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
-        try {
-            if (Preferences.GetInstance().DBconfigured && conDB.testConnectionSavedPrefs()){
-                if (Preferences.GetInstance().DBConnected){
-                    labelConnection.setText("DESCONECTADO");
-                    labelConnection.setOpaque(true);
-                    labelConnection.setBackground(Color.red);
-                    Preferences.GetInstance().DBConnected = false;
-                    cleanTables();
-                    daemon.interrupt();
-                    daemon = null;
-                }
-                else{
-                    labelConnection.setText("CONECTADO");
-                    labelConnection.setOpaque(true);
-                    labelConnection.setBackground(Color.green);
-                    Preferences.GetInstance().DBConnected = true;
-                    refreshTables();
-                    if (daemon == null)
-                        daemon = new Thread(new Daemon(), "Hilo daemon");
-                    if (!daemon.isAlive())
-                        daemon.start();
-                }
+        if (Preferences.GetInstance().DBconfigured && conDB.testConnectionSavedPrefs()){
+            if (Preferences.GetInstance().DBConnected){
+                labelConnection.setText("DESCONECTADO");
+                labelConnection.setOpaque(true);
+                labelConnection.setBackground(Color.red);
+                Preferences.GetInstance().DBConnected = false;
+                cleanTables();
+                daemon.interrupt();
+                daemon = null;
             }
-        } catch (Exception ex) {
-            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+            else{
+                labelConnection.setText("CONECTADO");
+                labelConnection.setOpaque(true);
+                labelConnection.setBackground(Color.green);
+                Preferences.GetInstance().DBConnected = true;
+                refreshTables();
+                if (daemon == null)
+                    daemon = new Thread(new Daemon(), "Hilo daemon");
+                if (!daemon.isAlive())
+                    daemon.start();
+            }
         }
     }//GEN-LAST:event_btnConnectActionPerformed
     

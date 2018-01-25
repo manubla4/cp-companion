@@ -356,8 +356,6 @@ public class ConfigMenu extends javax.swing.JFrame {
         btnAssignStock1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btnAssignStock1.setText("Asignar");
         btnAssignStock1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnAssignStock1.setMaximumSize(new java.awt.Dimension(77, 32));
-        btnAssignStock1.setMinimumSize(new java.awt.Dimension(77, 32));
         btnAssignStock1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAssignStock1ActionPerformed(evt);
@@ -507,22 +505,17 @@ public class ConfigMenu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
-        try {
-            if (conDB.testConnection((textIP.getText()+":"+textTCP.getText()), textNameDB.getText(), textUser.getText(), String.valueOf(textPass.getPassword()), checkInstance.isSelected())) {    
-                labelResult.setOpaque(true);
-                labelResult.setBackground(Color.green);
-                labelResult.setText("CONEXIÓN EXITOSA!");
-                connectionSuccess = true;
-                
-            } else {
-                labelResult.setOpaque(true);
-                labelResult.setBackground(Color.red);
-                labelResult.setText("CONEXIÓN FALLIDA");
-                connectionSuccess = false;
-            }
-        } catch (Exception ex) {
-            System.out.println("ERROR: " + ex);
-            ex.printStackTrace();
+        if (conDB.testConnection((textIP.getText()+":"+textTCP.getText()), textNameDB.getText(), textUser.getText(), String.valueOf(textPass.getPassword()), checkInstance.isSelected())) {    
+            labelResult.setOpaque(true);
+            labelResult.setBackground(Color.green);
+            labelResult.setText("CONEXIÓN EXITOSA!");
+            connectionSuccess = true;
+
+        } else {
+            labelResult.setOpaque(true);
+            labelResult.setBackground(Color.red);
+            labelResult.setText("CONEXIÓN FALLIDA");
+            connectionSuccess = false;
         }
     }//GEN-LAST:event_btnConnectActionPerformed
 

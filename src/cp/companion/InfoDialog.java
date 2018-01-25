@@ -53,7 +53,7 @@ public class InfoDialog extends javax.swing.JFrame {
         setResizable(false);
 
         labelInfo.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
-        labelInfo.setText("Clase agregada con éxito!");
+        labelInfo.setText("STOCK MINIMO ALCANZADO!");
 
         btnAceptar1.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         btnAceptar1.setText("Aceptar");
@@ -68,23 +68,23 @@ public class InfoDialog extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(132, 132, 132)
-                .addComponent(btnAceptar1)
-                .addContainerGap(142, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(58, Short.MAX_VALUE)
                 .addComponent(labelInfo)
-                .addGap(63, 63, 63))
+                .addGap(58, 58, 58))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(137, 137, 137)
+                .addComponent(btnAceptar1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(35, Short.MAX_VALUE)
+                .addContainerGap(40, Short.MAX_VALUE)
                 .addComponent(labelInfo)
-                .addGap(28, 28, 28)
+                .addGap(18, 18, 18)
                 .addComponent(btnAceptar1)
-                .addContainerGap())
+                .addGap(22, 22, 22))
         );
 
         pack();
