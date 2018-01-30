@@ -1,5 +1,6 @@
 package cp.companion;
 
+import java.awt.Color;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -10,9 +11,9 @@ import java.sql.Statement;
 
 public class ConnectionDB {
 
-    public Statement st = null;
-    public ResultSet rs = null;
-    public Connection con = null;
+    private Statement st = null;
+    private ResultSet rs = null;
+    private Connection con = null;
     private String url;
 
     
@@ -81,6 +82,7 @@ public class ConnectionDB {
         }catch (SQLException ex) {
             System.out.println("ERROR AL CONECTAR: " + ex);
             ex.printStackTrace();
+            onFailure();
         }catch (ClassNotFoundException ex) {
             System.out.println("ERROR AL CONECTAR: " + ex);
             ex.printStackTrace();
@@ -106,9 +108,9 @@ public class ConnectionDB {
         }catch (SQLException ex) {
             System.out.println("ERROR AL DESCONECTAR: " + ex); 
             ex.printStackTrace();
+            onFailure();
         }
     }
-    
     
     
     public void createAndExecuteQueryStocks() {
@@ -118,6 +120,7 @@ public class ConnectionDB {
         }catch (SQLException ex) {
             System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
             ex.printStackTrace();
+            onFailure();
         }catch (Exception ex) {
             System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
             ex.printStackTrace();
@@ -131,11 +134,28 @@ public class ConnectionDB {
         }catch (SQLException ex) {
             System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
             ex.printStackTrace();
+            onFailure();
         }catch (Exception ex) {
             System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
             ex.printStackTrace();
         }   
    }
+    
+    
+    public void createAndExecuteQueryFields() {
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(Daemon.queryFieldsExist);
+        }catch (SQLException ex) {
+            System.out.println("ERROR AL EJECUTAR QUERY FIELDS: " + ex);  
+            ex.printStackTrace();
+            onFailure();
+        }catch (Exception ex) {
+            System.out.println("ERROR AL EJECUTAR QUERY FIELDS: " + ex);  
+            ex.printStackTrace();
+        }   
+   }
+    
     
     public boolean RSgetNext() {
         try {
@@ -143,6 +163,7 @@ public class ConnectionDB {
         }catch (SQLException ex) {
             System.out.println("ERROR AL EJECUTAR rs.next(): " + ex);  
             ex.printStackTrace();
+            onFailure();
             return false;
         }catch (Exception ex) {
             System.out.println("ERROR AL EJECUTAR rs.next(): " + ex);  
@@ -157,6 +178,7 @@ public class ConnectionDB {
         }catch (SQLException ex) {
             System.out.println("ERROR AL EJECUTAR rs.getString("+key+"): " + ex);  
             ex.printStackTrace();
+            onFailure();
             return "";
         }catch (Exception ex) {
             System.out.println("ERROR AL EJECUTAR rs.getString("+key+"): " + ex);   
@@ -171,6 +193,7 @@ public class ConnectionDB {
         }catch (SQLException ex) {
             System.out.println("ERROR AL EJECUTAR rs.getInt("+key+"): " + ex); 
             ex.printStackTrace();
+            onFailure();
             return 0;
         }catch (Exception ex) {
             System.out.println("ERROR AL EJECUTAR rs.getInt("+key+"): " + ex);   
@@ -178,4 +201,28 @@ public class ConnectionDB {
             return 0;
         }   
    }
+    
+    public float RSgetFloat(String key) {
+        try {
+            return rs.getFloat(key);
+        }catch (SQLException ex) {
+            System.out.println("ERROR AL EJECUTAR rs.getFloat("+key+"): " + ex); 
+            ex.printStackTrace();
+            onFailure();
+            return 0;
+        }catch (Exception ex) {
+            System.out.println("ERROR AL EJECUTAR rs.getFloat("+key+"): " + ex);   
+            ex.printStackTrace();
+            return 0;
+        }   
+   }
+    
+   
+    private void onFailure(){
+        MainMenu.GetInstance().daemon.interrupt();
+        MainMenu.GetInstance().daemon = null;
+        MainMenu.GetInstance().getLabelCon().setText("DESCONECTADO");
+        MainMenu.GetInstance().getLabelCon().setOpaque(true);
+        MainMenu.GetInstance().getLabelCon().setBackground(Color.red);        
+    }
 }

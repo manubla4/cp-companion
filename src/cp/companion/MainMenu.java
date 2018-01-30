@@ -13,10 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -104,6 +101,15 @@ public class MainMenu extends javax.swing.JFrame {
                         labelConnection.setBackground(Color.green);  
                         Preferences.GetInstance().DBConnected = true;
                         refreshTables();
+                        int counter = 5;
+//                        conDB.connect();
+//                        conDB.createAndExecuteQueryFields();
+//                        while (conDB.RSgetNext()) {counter-=1;}
+//                        System.out.println(counter);
+//                        if (counter > 0){
+//                            //solicitar creacion de campos libres
+//                        }
+//                        conDB.disconnect();
                         if (daemon == null)
                             daemon = new Thread(new Daemon(), "Hilo daemon");                  
                         if (!daemon.isAlive())
@@ -238,11 +244,11 @@ public class MainMenu extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Artículo", "Descripción", "Vencimiento"
+                "Artículo", "Descripción", "Lote 1", "Lote 2", "Lote 3", "Lote 4", "Lote 5"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -381,10 +387,10 @@ public class MainMenu extends javax.swing.JFrame {
             while (conDB.RSgetNext()){
                 modelStocks.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION"), conDB.RSgetString("NOMBREALMACEN"), conDB.RSgetInt("STOCK"), conDB.RSgetInt("MINIMO"), conDB.RSgetInt("MAXIMO")});           
             }
-            conDB.createAndExecuteQueryVenc();
-            while (conDB.RSgetNext()){
-                modelVenc.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION"), conDB.RSgetString("VENCIMIENTO")});           
-            }
+//            conDB.createAndExecuteQueryVenc();
+//            while (conDB.RSgetNext()){
+//                modelVenc.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION"), conDB.RSgetString("VENCIMIENTO")});           
+//            }
             conDB.disconnect();
         }                  
     }

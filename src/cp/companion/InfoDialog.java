@@ -1,10 +1,5 @@
 package cp.companion;
 
-import java.awt.Image;
-import java.net.URL;
-import javax.swing.ImageIcon;
-
-
 
 public class InfoDialog extends javax.swing.JFrame {
 
@@ -21,7 +16,7 @@ public class InfoDialog extends javax.swing.JFrame {
     }
     
 
-    public static InfoDialog GetInstance() throws ClassNotFoundException {
+    public static InfoDialog GetInstance() {
         if (infoWin == null) {
             infoWin = new InfoDialog();
         }
