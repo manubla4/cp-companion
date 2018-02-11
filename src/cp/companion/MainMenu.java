@@ -13,9 +13,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Properties;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -100,16 +102,7 @@ public class MainMenu extends javax.swing.JFrame {
                         labelConnection.setOpaque(true);
                         labelConnection.setBackground(Color.green);  
                         Preferences.GetInstance().DBConnected = true;
-                        refreshTables();
-                        int counter = 5;
-//                        conDB.connect();
-//                        conDB.createAndExecuteQueryFields();
-//                        while (conDB.RSgetNext()) {counter-=1;}
-//                        System.out.println(counter);
-//                        if (counter > 0){
-//                            //solicitar creacion de campos libres
-//                        }
-//                        conDB.disconnect();
+                        refreshTables();                 
                         if (daemon == null)
                             daemon = new Thread(new Daemon(), "Hilo daemon");                  
                         if (!daemon.isAlive())
@@ -369,6 +362,45 @@ public class MainMenu extends javax.swing.JFrame {
         }     
     }
    
+
+
+    public void checkDBFields(){
+        if (Preferences.GetInstance().DBConnected && conDB.testConnectionSavedPrefs()){         
+            int counter = 5;
+            ArrayList<String> array = new ArrayList<String>();
+            conDB.connect();
+            conDB.createAndExecuteQueryFields();
+            while (conDB.RSgetNext()) {
+                array.add(conDB.RSgetString("COLUMN_NAME"));
+                counter-=1;
+            }
+            if (counter > 0){
+                int n = JOptionPane.showConfirmDialog(
+                    this, "No se han encontrado los campos libres de vencimientos\n"
+                            + " en la base de datos, ¿desea crearlos?",
+                    "  CAMPOS FALTANTES", JOptionPane.YES_NO_OPTION);
+                if (n == JOptionPane.YES_OPTION) {
+                    if (!array.contains("VENCIMIENTO_LOTE1")){
+                        conDB.createAndExecuteFieldInserts(1);
+                    }
+                    if (!array.contains("VENCIMIENTO_LOTE2")){
+                        conDB.createAndExecuteFieldInserts(2);
+                    }
+                    if (!array.contains("VENCIMIENTO_LOTE3")){
+                        conDB.createAndExecuteFieldInserts(3);
+                    }
+                    if (!array.contains("VENCIMIENTO_LOTE4")){
+                        conDB.createAndExecuteFieldInserts(4);
+                    }
+                    if (!array.contains("VENCIMIENTO_LOTE5")){
+                        conDB.createAndExecuteFieldInserts(5);
+                    }                  
+                }
+            }
+            conDB.disconnect();
+        }
+    }
+    
     
     public void cleanTables(){
         while (modelStocks.getRowCount() != 0){
@@ -446,6 +478,8 @@ public class MainMenu extends javax.swing.JFrame {
         return false;
     }
     
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -477,6 +511,7 @@ public class MainMenu extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 MainMenu.GetInstance().setVisible(true);
+                MainMenu.GetInstance().checkDBFields();
             }
         });
     }

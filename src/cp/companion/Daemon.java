@@ -7,8 +7,10 @@ package cp.companion;
 
 import java.awt.Color;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -25,6 +27,15 @@ class Daemon implements Runnable {
     public static final String queryFieldsExist = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ARTICULOSCAMPOSLIBRES' "
             + "AND (COLUMN_NAME = 'VENCIMIENTO_LOTE1' OR COLUMN_NAME = 'VENCIMIENTO_LOTE2' OR "
             + "COLUMN_NAME = 'VENCIMIENTO_LOTE3' OR COLUMN_NAME = 'VENCIMIENTO_LOTE4' OR COLUMN_NAME = 'VENCIMIENTO_LOTE5')";
+    public static final String[] stmntsInsertField = {"SET NO_BROWSETABLE ON",
+                                                "SELECT TOP 0 * FROM CAMPOSLIBRESCONFIG",
+                                                "SET NO_BROWSETABLE OFF",
+                                                "SET FMTONLY ON select TABLA,CAMPO,POSICION,ETIQUETA,TIPO,TAMANY,TIPOVALOR from CAMPOSLIBRESCONFIG WHERE 1=2 SET FMTONLY OFF",
+                                                "INSERT INTO CAMPOSLIBRESCONFIG\n" +
+                                                    "(TABLA, CAMPO, POSICION, ETIQUETA, TIPO, TAMANY, TIPOVALOR)\n" +
+                                                    "VALUES (1,",
+                                                "ALTER TABLE ARTICULOSCAMPOSLIBRES ADD VENCIMIENTO_LOTE",
+                                                "IF @@TRANCOUNT > 0 COMMIT TRAN"};
     private ConnectionDB conDB = new ConnectionDB();
     
     public void run() {
@@ -35,10 +46,10 @@ class Daemon implements Runnable {
                 while (conDB.RSgetNext()){
 //                    System.out.println(conDB.rs.getFloat("STOCK") + " >= " +conDB.rs.getFloat("MAXIMO") + " ?");
                     if (conDB.RSgetFloat("STOCK") >= conDB.RSgetFloat("MAXIMO")){
-//                        System.out.println("JACKPOT!");
-                        InfoDialog.GetInstance().setLabelText("STOCK MINIMO ALCANZADO!");
-//                        InfoDialog.GetInstance().setLabelImage(false);
-                        InfoDialog.GetInstance().setVisible(true);
+                        JOptionPane.showMessageDialog(MainMenu.GetInstance(),
+                                    "STOCK MINIMO ALCANZADO!",
+                                    "  Advertencia",
+                                    JOptionPane.WARNING_MESSAGE);
                     }               
                     
                 }

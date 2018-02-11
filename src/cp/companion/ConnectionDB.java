@@ -3,6 +3,7 @@ package cp.companion;
 import java.awt.Color;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -12,10 +13,11 @@ import java.sql.Statement;
 public class ConnectionDB {
 
     private Statement st = null;
+    private PreparedStatement pSt = null;
     private ResultSet rs = null;
     private Connection con = null;
     private String url;
-
+    
     
     
     public boolean testConnection(String server, String databaseName, String user, String password, boolean instance) {
@@ -112,6 +114,43 @@ public class ConnectionDB {
         }
     }
     
+    
+    public void createAndExecuteFieldInserts(int lote) {
+        try {
+            if (lote < 1 || lote > 5) {return;}
+            String currentSQL = "";    
+            int pos = 1;
+            for (int i = 0; i < Daemon.stmntsInsertField.length; i++) {
+                currentSQL = Daemon.stmntsInsertField[i];
+                if (i == 0 || i == 2 || i == 3 || i == 5 || i == 6){
+                    st = con.createStatement();
+                    st.execute(currentSQL);          
+                }
+                else if (i == 1){
+                    st = con.createStatement();
+                    rs = st.executeQuery(currentSQL);
+                }              
+                else if (i == 4){   
+                    st = con.createStatement();
+                    rs = st.executeQuery("SELECT MAX (POSICION) AS POSICION FROM CAMPOSLIBRESCONFIG");
+                    if (rs.next()){
+                        pos = rs.getInt("POSICION") + 1;
+                    }
+                    String temp = currentSQL+"'VENCIMIENTO_LOTE"+lote+"',"+pos+",'VENCIMIENTO_LOTE"+lote+"',5,0,1)";
+                    pSt = con.prepareStatement(temp);
+                    pSt.executeUpdate();
+                }      
+            }
+            
+        }catch (SQLException ex) {
+            System.out.println("ERROR AL EJECUTAR INSERT FIELD: " + ex);  
+            ex.printStackTrace();
+            onFailure();
+        }catch (Exception ex) {
+            System.out.println("ERROR AL EJECUTAR INSERT FIELD: " + ex);  
+            ex.printStackTrace();
+        }   
+   }
     
     public void createAndExecuteQueryStocks() {
         try {
