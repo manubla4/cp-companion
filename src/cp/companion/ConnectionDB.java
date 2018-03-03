@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 
 
@@ -115,39 +117,50 @@ public class ConnectionDB {
     }
     
     
-    public void createAndExecuteFieldInserts(int lote) {
-        try {
-            if (lote < 1 || lote > 5) {return;}
-            String currentSQL = "";    
-            int pos = 1;
-            for (int i = 0; i < Daemon.stmntsInsertField.length; i++) {
-                currentSQL = Daemon.stmntsInsertField[i];
-                if (i == 0 || i == 2 || i == 3 || i == 5 || i == 6){
-                    st = con.createStatement();
-                    st.execute(currentSQL);          
-                }
-                else if (i == 1){
-                    st = con.createStatement();
-                    rs = st.executeQuery(currentSQL);
-                }              
-                else if (i == 4){   
-                    st = con.createStatement();
-                    rs = st.executeQuery("SELECT MAX (POSICION) AS POSICION FROM CAMPOSLIBRESCONFIG");
-                    if (rs.next()){
-                        pos = rs.getInt("POSICION") + 1;
-                    }
-                    String temp = currentSQL+"'VENCIMIENTO_LOTE"+lote+"',"+pos+",'VENCIMIENTO_LOTE"+lote+"',5,0,1)";
-                    pSt = con.prepareStatement(temp);
-                    pSt.executeUpdate();
-                }      
+    public void createAndExecuteFieldInserts(int lote) throws Exception{
+        if (lote < 1 || lote > 5) {return;}
+        String currentSQL = "";  
+        String temp = "";
+        int pos = 1;
+        for (int i = 0; i < Daemon.stmntsInsertField.length; i++) {
+            currentSQL = Daemon.stmntsInsertField[i];
+            if (i == 0 || i == 2 || i == 3 || i == 6){
+                st = con.createStatement();
+                st.execute(currentSQL);          
             }
-            
+            else if (i == 1){
+                st = con.createStatement();
+                rs = st.executeQuery(currentSQL);
+            }              
+            else if (i == 4){   
+                st = con.createStatement();
+                rs = st.executeQuery("SELECT MAX (POSICION) AS POSICION FROM CAMPOSLIBRESCONFIG");
+                if (rs.next()){
+                    pos = rs.getInt("POSICION") + 1;
+                }
+                temp = currentSQL+"'VENCIMIENTO_LOTE"+lote+"',"+pos+",'VENCIMIENTO_LOTE"+lote+"',5,0,1)";
+                pSt = con.prepareStatement(temp);
+                pSt.executeUpdate();
+            }    
+            else if (i == 5){
+                st = con.createStatement();
+                temp = currentSQL + lote + " datetime";
+                st.execute(temp); 
+            }  
+        }  
+   }
+    
+    
+    public void createAndExecuteQueryDptos() {
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(Daemon.queryDepartamentos);
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR INSERT FIELD: " + ex);  
+            System.out.println("ERROR AL EJECUTAR QUERY DPTOS: " + ex);  
             ex.printStackTrace();
             onFailure();
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR INSERT FIELD: " + ex);  
+            System.out.println("ERROR AL EJECUTAR QUERY DPTOS: " + ex);  
             ex.printStackTrace();
         }   
    }
@@ -156,6 +169,20 @@ public class ConnectionDB {
         try {
             st = con.createStatement();
             rs = st.executeQuery(Daemon.queryStocks);
+        }catch (SQLException ex) {
+            System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
+            ex.printStackTrace();
+            onFailure();
+        }catch (Exception ex) {
+            System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
+            ex.printStackTrace();
+        }   
+   }
+    
+    public void createAndExecuteQueryStocksOfDepartment(String department) {
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(Daemon.queryStocks + " WHERE ar.DPTO = "+ department);
         }catch (SQLException ex) {
             System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
             ex.printStackTrace();
@@ -256,7 +283,32 @@ public class ConnectionDB {
         }   
    }
     
+    
+    public LocalDate RSgetDate(String key) {
+        try {
+            return rs.getDate(key).toLocalDate();
+        }catch (SQLException ex) {
+            System.out.println("ERROR AL EJECUTAR rs.getDate("+key+"): " + ex); 
+            ex.printStackTrace();
+            onFailure();
+            return null;
+        }catch (Exception ex) {
+            System.out.println("ERROR AL EJECUTAR rs.getDate("+key+"): " + ex);   
+            ex.printStackTrace();
+            return null;
+        }   
+   }
    
+    
+    public String RSgetDateAndFormat(String key){
+        LocalDate result = RSgetDate(key);
+        if (result != null)
+            return result.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        else
+            return "";
+    }
+    
+    
     private void onFailure(){
         MainMenu.GetInstance().daemon.interrupt();
         MainMenu.GetInstance().daemon = null;

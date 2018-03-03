@@ -6,13 +6,16 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 public class ConfigMenu extends javax.swing.JFrame {
 
@@ -21,6 +24,9 @@ public class ConfigMenu extends javax.swing.JFrame {
     private String encryptedText;
     public static final String configKey = "asSApoS654sl518";
     private ConnectionDB conDB = new ConnectionDB();
+    public boolean activeFrame = false;
+    private DefaultTableModel modelStocks;
+    private DefaultTableModel modelVenc;
     
     /**
      * Creates new form ConfiguracionBD
@@ -59,12 +65,69 @@ public class ConfigMenu extends javax.swing.JFrame {
         textNameDB.setText(Preferences.GetInstance().databaseName);
         textUser.setText(Preferences.GetInstance().user);
         
+        modelStocks = (DefaultTableModel) tableArticlesStock.getModel();
+        modelVenc = (DefaultTableModel) tableArticlesVenc.getModel();
+        
+        conDB.connect();
+        conDB.createAndExecuteQueryDptos();
+        while (conDB.RSgetNext()){
+            comboDepStock.addItem(conDB.RSgetString("NUMDPTO"));
+            comboDepVenc.addItem(conDB.RSgetString("NUMDPTO"));
+        }
+        conDB.disconnect();
+        
+        loadTableStocks();
+        loadTableVencs();
+
     }
 
 
 
     
+    private void loadTableStocks(){
+        if (comboDepStock.getSelectedItem().toString().compareTo("<<TODOS LOS DEPARTAMENTOS>>") == 0 )
+        {
+            conDB.connect();
+            conDB.createAndExecuteQueryStocks();
+            while (conDB.RSgetNext()){
+                modelStocks.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION")});
+            }
+            conDB.disconnect();
+        }
+        else{
+            conDB.connect();
+            conDB.createAndExecuteQueryStocksOfDepartment(comboDepStock.getSelectedItem().toString());
+            while (conDB.RSgetNext()){
+                modelStocks.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION")});
+            }
+            conDB.disconnect();
+        }
+    }
+    
+    
+    private void loadTableVencs(){
+        if (comboDepVenc.getSelectedItem().toString().compareTo("<<TODOS LOS DEPARTAMENTOS>>") == 0 )
+        {
+            conDB.connect();
+            conDB.createAndExecuteQueryStocks();
+            while (conDB.RSgetNext()){
+                modelVenc.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION")});
+            }
+            conDB.disconnect();
+        }
+         else{
+            conDB.connect();
+            conDB.createAndExecuteQueryStocksOfDepartment(comboDepVenc.getSelectedItem().toString());
+            while (conDB.RSgetNext()){
+                modelVenc.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION")});
+            }
+            conDB.disconnect();
+        }
+    }
+    
     public void onClose(){
+        activeFrame = false;
+        MainMenu.GetInstance().activeFrame = true;
         MainMenu.GetInstance().setEnabled(true);
         this.setVisible(false);
         labelResult.setText("");
@@ -95,6 +158,7 @@ public class ConfigMenu extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         labelResult = new javax.swing.JLabel();
+        btnCheckFields = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -111,6 +175,8 @@ public class ConfigMenu extends javax.swing.JFrame {
         checkSelectAllVenc = new javax.swing.JCheckBox();
         jLabel7 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
+        comboDepStock = new javax.swing.JComboBox<>();
+        comboDepVenc = new javax.swing.JComboBox<>();
         btnSave = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
 
@@ -176,6 +242,16 @@ public class ConfigMenu extends javax.swing.JFrame {
         labelResult.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         labelResult.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
+        btnCheckFields.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnCheckFields.setText("Agregar campos libres");
+        btnCheckFields.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnCheckFields.setEnabled(false);
+        btnCheckFields.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCheckFieldsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -183,10 +259,11 @@ public class ConfigMenu extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(30, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnCheckFields, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(checkInstance)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(labelResult, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(1, 1, 1)
+                        .addGap(18, 18, 18)
                         .addComponent(btnConnect))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -211,11 +288,11 @@ public class ConfigMenu extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(22, 22, 22)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textIP, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
+                    .addComponent(textIP)
                     .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textTCP, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
+                    .addComponent(textTCP)
                     .addComponent(jLabel5))
                 .addGap(18, 18, 18)
                 .addComponent(checkInstance)
@@ -232,10 +309,12 @@ public class ConfigMenu extends javax.swing.JFrame {
                     .addComponent(textPass, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
                 .addGap(34, 34, 34)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(labelResult, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(33, 33, 33))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(labelResult, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
+                    .addComponent(btnConnect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(btnCheckFields, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "PREFERENCIAS", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 16))); // NOI18N
@@ -263,22 +342,10 @@ public class ConfigMenu extends javax.swing.JFrame {
         tableArticlesStock.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tableArticlesStock.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"", null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
-                "Código", "Artículo", ""
+                "Artículo", "Descripción", ""
             }
         ) {
             Class[] types = new Class [] {
@@ -311,22 +378,10 @@ public class ConfigMenu extends javax.swing.JFrame {
         tableArticlesVenc.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         tableArticlesVenc.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"", null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
-                "Código", "Artículo", ""
+                "Artículo", "Descripción", ""
             }
         ) {
             Class[] types = new Class [] {
@@ -374,47 +429,47 @@ public class ConfigMenu extends javax.swing.JFrame {
         jLabel7.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         jLabel7.setText("Anticipación alerta vencimiento");
 
+        comboDepStock.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<<TODOS LOS DEPARTAMENTOS>>" }));
+
+        comboDepVenc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<<TODOS LOS DEPARTAMENTOS>>" }));
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(30, 30, 30)
+                .addGap(22, 22, 22)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(8, 8, 8)
                         .addComponent(jLabel7)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(checkSelectAllStock)
-                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, Short.MAX_VALUE)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(btnAssignStock, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(jLabel9)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(spinnerStock, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addGap(0, 0, Short.MAX_VALUE)
-                                        .addComponent(checkSelectAllVenc))
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(btnAssignStock1, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(jLabel10)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(spinnerVenc, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                        .addGap(34, 34, 34))))
+                                    .addComponent(jLabel6)
+                                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(spinnerVenc, javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(btnAssignStock1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(jLabel10))
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                                .addComponent(comboDepStock, javax.swing.GroupLayout.Alignment.LEADING, 0, 259, Short.MAX_VALUE)
+                                                .addComponent(checkSelectAllStock)
+                                                .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                                            .addGap(40, 40, 40)
+                                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(spinnerStock)
+                                                .addComponent(btnAssignStock, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(comboDepVenc, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(checkSelectAllVenc)))
+                        .addContainerGap(30, Short.MAX_VALUE))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -422,32 +477,42 @@ public class ConfigMenu extends javax.swing.JFrame {
                 .addGap(26, 26, 26)
                 .addComponent(jLabel6)
                 .addGap(18, 18, 18)
+                .addComponent(comboDepStock, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel9)
-                            .addComponent(spinnerStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnAssignStock, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                        .addGap(20, 20, 20)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(spinnerStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnAssignStock, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(62, 62, 62)))
                 .addComponent(checkSelectAllStock)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel7)
-                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel10)
-                            .addComponent(spinnerVenc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnAssignStock1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
-                .addComponent(checkSelectAllVenc)
-                .addGap(26, 26, 26))
+                        .addGap(18, 18, 18)
+                        .addComponent(comboDepVenc, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(20, 20, 20)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(checkSelectAllVenc)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addGap(98, 98, 98)
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(spinnerVenc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnAssignStock1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(105, 105, 105))))
         );
 
         checkSelectAllStock.getAccessibleContext().setAccessibleDescription("");
@@ -485,7 +550,7 @@ public class ConfigMenu extends javax.swing.JFrame {
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -494,7 +559,7 @@ public class ConfigMenu extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addGap(18, 32, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -535,6 +600,14 @@ public class ConfigMenu extends javax.swing.JFrame {
         onClose();
     }//GEN-LAST:event_btnCancelActionPerformed
 
+    
+    public void controlCheckBtn(){
+        btnCheckFields.setEnabled(false);
+        if (Preferences.GetInstance().DBConnected && conDB.testConnectionSavedPrefs()){ 
+            btnCheckFields.setEnabled(true);
+        }     
+    }
+    
     
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         
@@ -603,6 +676,62 @@ public class ConfigMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSaveActionPerformed
 
     
+    public void checkDBFields(){
+        if (Preferences.GetInstance().DBConnected && conDB.testConnectionSavedPrefs()){         
+            int counter = 5;
+            ArrayList<String> array = new ArrayList<String>();
+            conDB.connect();
+            conDB.createAndExecuteQueryFields();
+            while (conDB.RSgetNext()) {
+                array.add(conDB.RSgetString("COLUMN_NAME"));
+                counter-=1;
+            }
+            if (counter > 0){
+                int n = JOptionPane.showConfirmDialog(
+                    this, "No se han encontrado los campos libres de vencimientos\n"
+                            + " en la base de datos, ¿desea crearlos?",
+                    "  CAMPOS FALTANTES", JOptionPane.YES_NO_OPTION);
+                if (n == JOptionPane.YES_OPTION) {
+                    try{
+                        if (!array.contains("VENCIMIENTO_LOTE1")){
+                            conDB.createAndExecuteFieldInserts(1);
+                        }
+                        if (!array.contains("VENCIMIENTO_LOTE2")){
+                            conDB.createAndExecuteFieldInserts(2);
+                        }
+                        if (!array.contains("VENCIMIENTO_LOTE3")){
+                            conDB.createAndExecuteFieldInserts(3);
+                        }
+                        if (!array.contains("VENCIMIENTO_LOTE4")){
+                            conDB.createAndExecuteFieldInserts(4);
+                        }
+                        if (!array.contains("VENCIMIENTO_LOTE5")){
+                            conDB.createAndExecuteFieldInserts(5);
+                        }
+                        JOptionPane.showMessageDialog(this,
+                                    "Campos creados con éxito!",
+                                    "  Información",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                    }catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this,
+                                    "Error de conexión al crear campos",
+                                    "  Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                    }                 
+                }
+            }
+            else{
+               JOptionPane.showMessageDialog(this,
+                                    "Los campos ya se encuentran creados en la base de datos",
+                                    "  Información",
+                                    JOptionPane.INFORMATION_MESSAGE); 
+            }
+            conDB.disconnect();
+        }
+    }
+    
+    
     private void alignCellsToCenter(JTable table, int column) {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
@@ -625,6 +754,10 @@ public class ConfigMenu extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_checkSelectAllStockActionPerformed
 
+    private void btnCheckFieldsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckFieldsActionPerformed
+        checkDBFields();
+    }//GEN-LAST:event_btnCheckFieldsActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -639,11 +772,14 @@ public class ConfigMenu extends javax.swing.JFrame {
     private javax.swing.JButton btnAssignStock;
     private javax.swing.JButton btnAssignStock1;
     private javax.swing.JButton btnCancel;
+    private javax.swing.JButton btnCheckFields;
     private javax.swing.JButton btnConnect;
     private javax.swing.JButton btnSave;
     private javax.swing.JCheckBox checkInstance;
     private javax.swing.JCheckBox checkSelectAllStock;
     private javax.swing.JCheckBox checkSelectAllVenc;
+    private javax.swing.JComboBox<String> comboDepStock;
+    private javax.swing.JComboBox<String> comboDepVenc;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
