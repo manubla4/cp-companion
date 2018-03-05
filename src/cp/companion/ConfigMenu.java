@@ -4,18 +4,26 @@ import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 public class ConfigMenu extends javax.swing.JFrame {
 
@@ -27,7 +35,7 @@ public class ConfigMenu extends javax.swing.JFrame {
     public boolean activeFrame = false;
     private DefaultTableModel modelStocks;
     private DefaultTableModel modelVenc;
-    
+        
     /**
      * Creates new form ConfiguracionBD
      */
@@ -35,7 +43,6 @@ public class ConfigMenu extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(HIDE_ON_CLOSE); 
-        this.setAlwaysOnTop(true);
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {          
                 onClose();
@@ -68,6 +75,10 @@ public class ConfigMenu extends javax.swing.JFrame {
         modelStocks = (DefaultTableModel) tableArticlesStock.getModel();
         modelVenc = (DefaultTableModel) tableArticlesVenc.getModel();
         
+        //Ordena automático clickeando la cabecera de la tabla
+        tableArticlesStock.setAutoCreateRowSorter(true);  
+        tableArticlesVenc.setAutoCreateRowSorter(true);      
+        
         conDB.connect();
         conDB.createAndExecuteQueryDptos();
         while (conDB.RSgetNext()){
@@ -85,10 +96,13 @@ public class ConfigMenu extends javax.swing.JFrame {
 
     
     private void loadTableStocks(){
+        while (modelStocks.getRowCount() != 0){
+            modelStocks.removeRow(0);
+        }
         if (comboDepStock.getSelectedItem().toString().compareTo("<<TODOS LOS DEPARTAMENTOS>>") == 0 )
         {
             conDB.connect();
-            conDB.createAndExecuteQueryStocks();
+            conDB.createAndExecuteQueryVenc();
             while (conDB.RSgetNext()){
                 modelStocks.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION")});
             }
@@ -96,20 +110,32 @@ public class ConfigMenu extends javax.swing.JFrame {
         }
         else{
             conDB.connect();
-            conDB.createAndExecuteQueryStocksOfDepartment(comboDepStock.getSelectedItem().toString());
+            conDB.createAndExecuteQueryVencOfDepartment(comboDepStock.getSelectedItem().toString());
             while (conDB.RSgetNext()){
                 modelStocks.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION")});
             }
             conDB.disconnect();
         }
+        //********************************************************************
+        //Ordenamiento de tablita
+        TableRowSorter<TableModel> sorterS = new TableRowSorter<>(modelStocks);
+        tableArticlesStock.setRowSorter(sorterS);
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+        sorterS.setSortKeys(sortKeys);
+        sorterS.sort();
+        //********************************************************************
     }
     
     
     private void loadTableVencs(){
+        while (modelVenc.getRowCount() != 0){
+            modelVenc.removeRow(0);
+        }
         if (comboDepVenc.getSelectedItem().toString().compareTo("<<TODOS LOS DEPARTAMENTOS>>") == 0 )
         {
             conDB.connect();
-            conDB.createAndExecuteQueryStocks();
+            conDB.createAndExecuteQueryVenc();
             while (conDB.RSgetNext()){
                 modelVenc.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION")});
             }
@@ -117,12 +143,21 @@ public class ConfigMenu extends javax.swing.JFrame {
         }
          else{
             conDB.connect();
-            conDB.createAndExecuteQueryStocksOfDepartment(comboDepVenc.getSelectedItem().toString());
+            conDB.createAndExecuteQueryVencOfDepartment(comboDepVenc.getSelectedItem().toString());
             while (conDB.RSgetNext()){
                 modelVenc.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION")});
             }
             conDB.disconnect();
-        }
+        }       
+        //********************************************************************
+        //Ordenamiento de tablita
+        TableRowSorter<TableModel> sorterV = new TableRowSorter<>(modelVenc);
+        tableArticlesVenc.setRowSorter(sorterV);
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+        sorterV.setSortKeys(sortKeys);
+        sorterV.sort();
+        //********************************************************************
     }
     
     public void onClose(){
@@ -323,7 +358,7 @@ public class ConfigMenu extends javax.swing.JFrame {
         jLabel6.setText("Anticipación alerta stock");
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel9.setText("Alertar en stock:");
+        jLabel9.setText("Unidades por encima del mínimo:");
 
         spinnerStock.setFont(new java.awt.Font("Consolas", 0, 15)); // NOI18N
         spinnerStock.setValue(1);
@@ -403,7 +438,8 @@ public class ConfigMenu extends javax.swing.JFrame {
         jScrollPane3.setViewportView(tableArticlesVenc);
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel10.setText("Alertar días antes:");
+        jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel10.setText("Días antes del vencimiento:");
 
         spinnerVenc.setFont(new java.awt.Font("Consolas", 0, 15)); // NOI18N
         spinnerVenc.setValue(1);
@@ -430,8 +466,18 @@ public class ConfigMenu extends javax.swing.JFrame {
         jLabel7.setText("Anticipación alerta vencimiento");
 
         comboDepStock.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<<TODOS LOS DEPARTAMENTOS>>" }));
+        comboDepStock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboDepStockActionPerformed(evt);
+            }
+        });
 
         comboDepVenc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<<TODOS LOS DEPARTAMENTOS>>" }));
+        comboDepVenc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboDepVencActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -440,51 +486,45 @@ public class ConfigMenu extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(22, 22, 22)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(8, 8, 8)
-                        .addComponent(jLabel7)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel6)
-                                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(spinnerVenc, javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(btnAssignStock1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jLabel10))
-                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                                .addComponent(comboDepStock, javax.swing.GroupLayout.Alignment.LEADING, 0, 259, Short.MAX_VALUE)
-                                                .addComponent(checkSelectAllStock)
-                                                .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                                            .addGap(40, 40, 40)
-                                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(spinnerStock)
-                                                .addComponent(btnAssignStock, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(comboDepStock, javax.swing.GroupLayout.Alignment.LEADING, 0, 259, Short.MAX_VALUE)
+                                .addComponent(checkSelectAllStock)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                            .addGap(40, 40, 40)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(spinnerStock)
+                                .addComponent(btnAssignStock, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
                             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(comboDepVenc, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(checkSelectAllVenc)))
-                        .addContainerGap(30, Short.MAX_VALUE))))
+                                .addComponent(checkSelectAllVenc))
+                            .addGap(40, 40, 40)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(spinnerVenc)
+                                .addComponent(btnAssignStock1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE))))
+                    .addComponent(jLabel7))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(26, 26, 26)
                 .addComponent(jLabel6)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(comboDepStock, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel9)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(spinnerStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -492,21 +532,20 @@ public class ConfigMenu extends javax.swing.JFrame {
                         .addComponent(btnAssignStock, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(62, 62, 62)))
                 .addComponent(checkSelectAllStock)
-                .addGap(18, 18, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel7)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(comboDepVenc, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(20, 20, 20)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(checkSelectAllVenc)
-                        .addContainerGap())
+                        .addGap(18, 18, 18))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGap(98, 98, 98)
                         .addComponent(jLabel10)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(spinnerVenc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -559,7 +598,7 @@ public class ConfigMenu extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 32, Short.MAX_VALUE)
+                .addGap(18, 59, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -739,7 +778,32 @@ public class ConfigMenu extends javax.swing.JFrame {
     }
     
     private void btnAssignStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAssignStockActionPerformed
-        // TODO add your handling code here:
+        try {
+            File f = new File("./anticipation.properties");
+            FileInputStream in = new FileInputStream(f);
+            Properties props = new Properties();
+            props.load(in);
+            in.close();
+            boolean flag = false;
+            for (int i = 0; i < tableArticlesStock.getRowCount() ; i++) {
+                if (tableArticlesStock.getValueAt(i, 2) != null){
+                    flag = true;
+                    props.setProperty(tableArticlesStock.getValueAt(i, 0).toString()+"_STOCK", spinnerStock.getValue().toString());
+                }
+            }
+            if (flag){
+                
+                OutputStream out = new FileOutputStream(f);
+                props.store(out, "ANTICIPATION PROPERTIES");
+                out.close();
+            }
+
+        }catch (FileNotFoundException ex) {
+            Logger.getLogger(ConfigMenu.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ConfigMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }//GEN-LAST:event_btnAssignStockActionPerformed
 
     private void btnAssignStock1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAssignStock1ActionPerformed
@@ -747,16 +811,42 @@ public class ConfigMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAssignStock1ActionPerformed
 
     private void checkSelectAllVencActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkSelectAllVencActionPerformed
-        // TODO add your handling code here:
+        if (checkSelectAllVenc.isSelected()){
+            for (int i = 0; i < tableArticlesVenc.getRowCount() ; i++) {
+                tableArticlesVenc.setValueAt(true, i, 2);
+            }
+        }
+        else{
+            for (int i = 0; i < tableArticlesVenc.getRowCount() ; i++) {
+                tableArticlesVenc.setValueAt(false, i, 2);
+            }
+        }
     }//GEN-LAST:event_checkSelectAllVencActionPerformed
 
     private void checkSelectAllStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkSelectAllStockActionPerformed
-        // TODO add your handling code here:
+        if (checkSelectAllStock.isSelected()){
+            for (int i = 0; i < tableArticlesStock.getRowCount() ; i++) {
+                tableArticlesStock.setValueAt(true, i, 2);
+            }
+        }
+        else{
+            for (int i = 0; i < tableArticlesStock.getRowCount() ; i++) {
+                tableArticlesStock.setValueAt(false, i, 2);
+            }
+        }
     }//GEN-LAST:event_checkSelectAllStockActionPerformed
 
     private void btnCheckFieldsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckFieldsActionPerformed
         checkDBFields();
     }//GEN-LAST:event_btnCheckFieldsActionPerformed
+
+    private void comboDepStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboDepStockActionPerformed
+        loadTableStocks();      
+    }//GEN-LAST:event_comboDepStockActionPerformed
+
+    private void comboDepVencActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboDepVencActionPerformed
+        loadTableVencs();
+    }//GEN-LAST:event_comboDepVencActionPerformed
 
     /**
      * @param args the command line arguments

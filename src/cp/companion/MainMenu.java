@@ -15,13 +15,18 @@ import java.io.InputStream;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 
 /**
@@ -75,6 +80,9 @@ public class MainMenu extends javax.swing.JFrame {
       
         modelStocks = (DefaultTableModel) tableStocks.getModel();
         modelVenc = (DefaultTableModel) tableVencimientos.getModel();
+        
+        tableStocks.setAutoCreateRowSorter(true);  
+        tableVencimientos.setAutoCreateRowSorter(true);
         
         file = new File("config.properties");
         if(file.exists() && !file.isDirectory()){
@@ -482,7 +490,23 @@ public class MainMenu extends javax.swing.JFrame {
                 }
             }
             conDB.disconnect();
-        }                  
+        } 
+        //********************************************************************
+        //Ordenamiento de tablitas
+        TableRowSorter<TableModel> sorterS = new TableRowSorter<>(modelStocks);
+        tableStocks.setRowSorter(sorterS);
+        List<RowSorter.SortKey> sortKeysS = new ArrayList<>();
+        sortKeysS.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+        sorterS.setSortKeys(sortKeysS);
+        sorterS.sort();
+        
+        TableRowSorter<TableModel> sorterV = new TableRowSorter<>(modelVenc);
+        tableVencimientos.setRowSorter(sorterV);
+        List<RowSorter.SortKey> sortKeysV = new ArrayList<>();
+        sortKeysV.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+        sorterV.setSortKeys(sortKeysV);
+        sorterV.sort();
+        //********************************************************************
     }
     
     private void btnConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigActionPerformed

@@ -179,10 +179,10 @@ public class ConnectionDB {
         }   
    }
     
-    public void createAndExecuteQueryStocksOfDepartment(String department) {
+    public void createAndExecuteQueryVencOfDepartment(String department) {
         try {
             st = con.createStatement();
-            rs = st.executeQuery(Daemon.queryStocks + " WHERE ar.DPTO = "+ department);
+            rs = st.executeQuery(Daemon.queryVencimientos + " WHERE ar.DPTO = "+ department);
         }catch (SQLException ex) {
             System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
             ex.printStackTrace();
