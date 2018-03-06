@@ -5,9 +5,16 @@
  */
 package cp.companion;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.Period;
 import static java.time.temporal.ChronoUnit.DAYS;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -47,32 +54,67 @@ class Daemon implements Runnable {
             String loteString;
             LocalDate localDate;
             int articulosSinStock = 0;
-            int lotesVencidos = 0;
-                    
+            int articulosPorAcabarse = 0;
+            int lotesVencidos = 0;                   
+            File f = new File("./anticipation.properties");
+            Properties props = new Properties();
+            if (!f.exists())
+                ConfigMenu.GetInstance().createDefaultPreferences();                     
+            FileInputStream in = new FileInputStream(f);
+            props.load(in);
+            in.close();
+            
             while (true){
                 conDB.connect();
                 conDB.createAndExecuteQueryStocks();
                 while (conDB.RSgetNext()){
-                    if (conDB.RSgetFloat("STOCK") <= conDB.RSgetFloat("MINIMO")){
+                    String articulo = conDB.RSgetString("CODARTICULO");
+                    float minimo = conDB.RSgetFloat("MINIMO");
+                    float stock = conDB.RSgetFloat("STOCK");
+                    
+                    float anticipation = Float.parseFloat(props.getProperty("STOCK_"+articulo, Integer.toString(ConfigMenu.DEFAULT_ANTICIPATION)));
+                    
+                    if (stock <= minimo){
                         articulosSinStock += 1;
                         if (MainMenu.GetInstance().activeFrame){
                             JOptionPane.showMessageDialog(MainMenu.GetInstance(),
-                                        "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+conDB.RSgetString("CODARTICULO"),
+                                        "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+articulo,
                                         "  Advertencia",
                                         JOptionPane.WARNING_MESSAGE);
                         }
                         else if (ConfigMenu.GetInstance().activeFrame){
                             JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
-                                        "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+conDB.RSgetString("CODARTICULO"),
+                                        "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+articulo,
                                         "  Advertencia",
                                         JOptionPane.WARNING_MESSAGE);
                         }
-                    }               
+                    }      
                     
+                    else if (stock <= (minimo + anticipation)){
+                       articulosPorAcabarse += 1;
+                       if (MainMenu.GetInstance().activeFrame){
+                            JOptionPane.showMessageDialog(MainMenu.GetInstance(),
+                                        "STOCK A SOLO "+ Math.round(stock-minimo) +" UNIDADES DE ALCANZAR EL MINIMO !\nCÓDIGO ARTÍCULO: "+articulo,
+                                        "  Advertencia",
+                                        JOptionPane.WARNING_MESSAGE);
+                        }
+                        else if (ConfigMenu.GetInstance().activeFrame){
+                            JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
+                                        "STOCK A SOLO "+ Math.round(stock-minimo) +" UNIDADES DE ALCANZAR EL MINIMO !\nCÓDIGO ARTÍCULO: "+articulo,
+                                        "  Advertencia",
+                                        JOptionPane.WARNING_MESSAGE);
+                        } 
+                        props.setProperty("STOCK_"+articulo, Integer.toString(Math.round(anticipation-1)));
+                        OutputStream out = new FileOutputStream(f);
+                        props.store(out, "ANTICIPATION PROPERTIES");
+                        out.close();
+                    }    
                 }
                 
-                MainMenu.GetInstance().setLabelStocks("EN STOCK MINIMO: "+articulosSinStock, articulosSinStock);
+                MainMenu.GetInstance().setLabelStocks("EN STOCK MINIMO: "+ articulosSinStock);
+                MainMenu.GetInstance().setLabelStocksAnt("POR ACABARSE: "+ articulosPorAcabarse);
                 articulosSinStock = 0;
+                articulosPorAcabarse = 0;
                     
                 localDate = LocalDate.now();
                 daysBetween =  DAYS.between(lastDateCheck, localDate);
@@ -143,6 +185,10 @@ class Daemon implements Runnable {
         } 
         
         catch (InterruptedException ex) {
+            Logger.getLogger(Daemon.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Daemon.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(Daemon.class.getName()).log(Level.SEVERE, null, ex);
         } 
         

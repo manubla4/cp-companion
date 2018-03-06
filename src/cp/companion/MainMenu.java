@@ -77,7 +77,9 @@ public class MainMenu extends javax.swing.JFrame {
         labelConnection.setText("DESCONECTADO");
         labelConnection.setOpaque(true);
         labelConnection.setBackground(Color.red);   
-      
+        labelStocks.setForeground(Color.red);
+        labelStocksAnt.setForeground(Color.yellow);
+        
         modelStocks = (DefaultTableModel) tableStocks.getModel();
         modelVenc = (DefaultTableModel) tableVencimientos.getModel();
         
@@ -149,13 +151,13 @@ public class MainMenu extends javax.swing.JFrame {
             labelVencidos.setForeground(Color.green);
     }
     
-    public void setLabelStocks (String text, int amount){
-        this.labelStocks.setText(text);
-        if (amount > 0)
-            labelStocks.setForeground(Color.red);
-        else
-            labelStocks.setForeground(Color.green);
-            
+    public void setLabelStocks (String text){
+        this.labelStocks.setText(text);          
+    }
+    
+    
+    public void setLabelStocksAnt (String text){
+        this.labelStocksAnt.setText(text);
     }
     
     
@@ -177,6 +179,7 @@ public class MainMenu extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tableStocks = new javax.swing.JTable();
         labelStocks = new javax.swing.JLabel();
+        labelStocksAnt = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         labelVencidos = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -236,6 +239,9 @@ public class MainMenu extends javax.swing.JFrame {
         labelStocks.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         labelStocks.setText("EN STOCK MINIMO: 0");
 
+        labelStocksAnt.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        labelStocksAnt.setText("POR ACABARSE: 0");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -243,7 +249,10 @@ public class MainMenu extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(labelStocks)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(labelStocks)
+                        .addGap(55, 55, 55)
+                        .addComponent(labelStocksAnt))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
@@ -251,7 +260,9 @@ public class MainMenu extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(25, 25, 25)
-                .addComponent(labelStocks)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelStocks)
+                    .addComponent(labelStocksAnt))
                 .addGap(22, 22, 22)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(34, Short.MAX_VALUE))
@@ -618,6 +629,7 @@ public class MainMenu extends javax.swing.JFrame {
     private javax.swing.JLabel labelConnection;
     private javax.swing.JLabel labelLogo;
     private javax.swing.JLabel labelStocks;
+    private javax.swing.JLabel labelStocksAnt;
     private javax.swing.JLabel labelVencidos;
     private javax.swing.JTable tableStocks;
     private javax.swing.JTable tableVencimientos;

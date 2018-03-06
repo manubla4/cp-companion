@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -35,6 +36,8 @@ public class ConfigMenu extends javax.swing.JFrame {
     public boolean activeFrame = false;
     private DefaultTableModel modelStocks;
     private DefaultTableModel modelVenc;
+    private ImageIcon successIcon = createImageIcon("resources/success.png");
+    public static final int DEFAULT_ANTICIPATION = 5;
         
     /**
      * Creates new form ConfiguracionBD
@@ -88,12 +91,48 @@ public class ConfigMenu extends javax.swing.JFrame {
         conDB.disconnect();
         
         loadTableStocks();
-        loadTableVencs();
-
+        loadTableVencs();    
+        
+        createDefaultPreferences();
     }
 
 
+    
+    public void createDefaultPreferences (){
+        try {
+            File f = new File("./anticipation.properties");
+            Properties props = new Properties();
+            if (!f.exists()){    
+                conDB.connect();
+                conDB.createAndExecuteQueryStocks();
+                while (conDB.RSgetNext()){
+                    props.setProperty("STOCK_"+conDB.RSgetString("CODARTICULO"), Integer.toString(DEFAULT_ANTICIPATION));
+                }
+                conDB.createAndExecuteQueryVenc();
+                while (conDB.RSgetNext()){
+                    props.setProperty("VENC_"+conDB.RSgetString("CODARTICULO"), Integer.toString(DEFAULT_ANTICIPATION));
+                }
+                OutputStream out = new FileOutputStream(f);
+                props.store(out, "ANTICIPATION PROPERTIES");
+                out.close();  
+                conDB.disconnect();
+            }   
+        }catch (FileNotFoundException ex) {
+            Logger.getLogger(ConfigMenu.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ConfigMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
+    protected static ImageIcon createImageIcon(String path) {
+        java.net.URL imgURL = ConfigMenu.class.getResource(path);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL);
+        } else {
+            System.err.println("Couldn't find file: " + path);
+            return null;
+        }
+    }
     
     private void loadTableStocks(){
         while (modelStocks.getRowCount() != 0){
@@ -206,7 +245,7 @@ public class ConfigMenu extends javax.swing.JFrame {
         tableArticlesVenc = new javax.swing.JTable();
         jLabel10 = new javax.swing.JLabel();
         spinnerVenc = new javax.swing.JSpinner();
-        btnAssignStock1 = new javax.swing.JButton();
+        btnAssignVenc = new javax.swing.JButton();
         checkSelectAllVenc = new javax.swing.JCheckBox();
         jLabel7 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
@@ -444,12 +483,12 @@ public class ConfigMenu extends javax.swing.JFrame {
         spinnerVenc.setFont(new java.awt.Font("Consolas", 0, 15)); // NOI18N
         spinnerVenc.setValue(1);
 
-        btnAssignStock1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        btnAssignStock1.setText("Asignar");
-        btnAssignStock1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnAssignStock1.addActionListener(new java.awt.event.ActionListener() {
+        btnAssignVenc.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnAssignVenc.setText("Asignar");
+        btnAssignVenc.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnAssignVenc.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAssignStock1ActionPerformed(evt);
+                btnAssignVencActionPerformed(evt);
             }
         });
 
@@ -507,7 +546,7 @@ public class ConfigMenu extends javax.swing.JFrame {
                             .addGap(40, 40, 40)
                             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(spinnerVenc)
-                                .addComponent(btnAssignStock1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnAssignVenc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE))))
                     .addComponent(jLabel7))
                 .addContainerGap(30, Short.MAX_VALUE))
@@ -550,7 +589,7 @@ public class ConfigMenu extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(spinnerVenc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnAssignStock1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnAssignVenc, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(105, 105, 105))))
         );
 
@@ -750,7 +789,8 @@ public class ConfigMenu extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(this,
                                     "Campos creados con éxito!",
                                     "  Información",
-                                    JOptionPane.INFORMATION_MESSAGE);
+                                    JOptionPane.INFORMATION_MESSAGE,
+                                    successIcon);
                     }catch (Exception ex) {
                         JOptionPane.showMessageDialog(this,
                                     "Error de conexión al crear campos",
@@ -780,23 +820,37 @@ public class ConfigMenu extends javax.swing.JFrame {
     private void btnAssignStockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAssignStockActionPerformed
         try {
             File f = new File("./anticipation.properties");
-            FileInputStream in = new FileInputStream(f);
             Properties props = new Properties();
-            props.load(in);
-            in.close();
+            if (f.exists() && !f.isDirectory()){    
+                FileInputStream in = new FileInputStream(f);
+                props.load(in);
+                in.close();
+            }   
+            
             boolean flag = false;
             for (int i = 0; i < tableArticlesStock.getRowCount() ; i++) {
-                if (tableArticlesStock.getValueAt(i, 2) != null){
+                if (tableArticlesStock.getValueAt(i, 2) != null && (boolean)tableArticlesStock.getValueAt(i, 2)){
                     flag = true;
-                    props.setProperty(tableArticlesStock.getValueAt(i, 0).toString()+"_STOCK", spinnerStock.getValue().toString());
+                    props.setProperty("STOCK_"+tableArticlesStock.getValueAt(i, 0).toString(), spinnerStock.getValue().toString());
                 }
             }
             if (flag){
-                
+                JOptionPane.showMessageDialog(this,
+                                            "Las preferencias fueron correctamente actualizadas !",
+                                            " Exito",
+                                            JOptionPane.INFORMATION_MESSAGE,
+                                            successIcon);
                 OutputStream out = new FileOutputStream(f);
                 props.store(out, "ANTICIPATION PROPERTIES");
                 out.close();
             }
+            else{
+                JOptionPane.showMessageDialog(this,
+                                            "No se seleccionó ningún artículo !",
+                                            " Aviso",
+                                            JOptionPane.WARNING_MESSAGE);
+            }
+            
 
         }catch (FileNotFoundException ex) {
             Logger.getLogger(ConfigMenu.class.getName()).log(Level.SEVERE, null, ex);
@@ -806,9 +860,47 @@ public class ConfigMenu extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnAssignStockActionPerformed
 
-    private void btnAssignStock1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAssignStock1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnAssignStock1ActionPerformed
+    private void btnAssignVencActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAssignVencActionPerformed
+        try {
+            File f = new File("./anticipation.properties");
+            Properties props = new Properties();
+            if (f.exists() && !f.isDirectory()){    
+                FileInputStream in = new FileInputStream(f);
+                props.load(in);
+                in.close();
+            }   
+            
+            boolean flag = false;
+            for (int i = 0; i < tableArticlesVenc.getRowCount() ; i++) {
+                if (tableArticlesVenc.getValueAt(i, 2) != null && (boolean)tableArticlesVenc.getValueAt(i, 2)){
+                    flag = true;
+                    props.setProperty("VENC_"+tableArticlesVenc.getValueAt(i, 0).toString(), spinnerVenc.getValue().toString());
+                }
+            }
+            if (flag){
+                JOptionPane.showMessageDialog(this,
+                                            "Las preferencias fueron correctamente actualizadas !",
+                                            " Exito",
+                                            JOptionPane.INFORMATION_MESSAGE,
+                                            successIcon);
+                OutputStream out = new FileOutputStream(f);
+                props.store(out, "ANTICIPATION PROPERTIES");
+                out.close();
+            }
+            else{
+                JOptionPane.showMessageDialog(this,
+                                            "No se seleccionó ningún artículo !",
+                                            " Aviso",
+                                            JOptionPane.WARNING_MESSAGE);
+            }
+            
+
+        }catch (FileNotFoundException ex) {
+            Logger.getLogger(ConfigMenu.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ConfigMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnAssignVencActionPerformed
 
     private void checkSelectAllVencActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkSelectAllVencActionPerformed
         if (checkSelectAllVenc.isSelected()){
@@ -860,7 +952,7 @@ public class ConfigMenu extends javax.swing.JFrame {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAssignStock;
-    private javax.swing.JButton btnAssignStock1;
+    private javax.swing.JButton btnAssignVenc;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnCheckFields;
     private javax.swing.JButton btnConnect;
