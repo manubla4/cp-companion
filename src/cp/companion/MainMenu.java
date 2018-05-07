@@ -78,6 +78,7 @@ public class MainMenu extends javax.swing.JFrame {
         labelConnection.setOpaque(true);
         labelConnection.setBackground(Color.red);   
         labelStocks.setForeground(Color.red);
+        labelVencidos.setForeground(Color.red);
         labelStocksAnt.setForeground(Color.yellow);
         
         modelStocks = (DefaultTableModel) tableStocks.getModel();
@@ -143,12 +144,8 @@ public class MainMenu extends javax.swing.JFrame {
                       
     }
 
-    public void setLabelVencidos (String text, int amount){
+    public void setLabelVencidos (String text){
         labelVencidos.setText(text);
-        if (amount > 0)
-            labelVencidos.setForeground(Color.red);
-        else
-            labelVencidos.setForeground(Color.green);
     }
     
     public void setLabelStocks (String text){
@@ -540,6 +537,7 @@ public class MainMenu extends javax.swing.JFrame {
                 labelConnection.setOpaque(true);
                 labelConnection.setBackground(Color.red);
                 labelStocks.setText("");
+                labelStocksAnt.setText("");
                 labelVencidos.setText("");
                 Preferences.GetInstance().DBConnected = false;
                 cleanTables();

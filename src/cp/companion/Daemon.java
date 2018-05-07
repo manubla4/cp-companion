@@ -49,8 +49,7 @@ class Daemon implements Runnable {
     
     public void run() {
         try {
-            LocalDate lastDateCheck = LocalDate.now().minus(Period.ofDays(1));
-            long daysBetween;
+            //LocalDate lastDateCheck = LocalDate.now().minus(Period.ofDays(1));
             String loteString;
             LocalDate localDate;
             int articulosSinStock = 0;
@@ -70,8 +69,7 @@ class Daemon implements Runnable {
                 while (conDB.RSgetNext()){
                     String articulo = conDB.RSgetString("CODARTICULO");
                     float minimo = conDB.RSgetFloat("MINIMO");
-                    float stock = conDB.RSgetFloat("STOCK");
-                    
+                    float stock = conDB.RSgetFloat("STOCK");                    
                     float anticipation = Float.parseFloat(props.getProperty("STOCK_"+articulo, Integer.toString(ConfigMenu.DEFAULT_ANTICIPATION)));
                     
                     if (stock <= minimo){
@@ -117,65 +115,60 @@ class Daemon implements Runnable {
                 articulosPorAcabarse = 0;
                     
                 localDate = LocalDate.now();
-                daysBetween =  DAYS.between(lastDateCheck, localDate);
-                if (daysBetween >= 1){
-                    lastDateCheck = LocalDate.now();
-                    conDB.createAndExecuteQueryVenc();
-                    while (conDB.RSgetNext()){
+                //daysBetween =  DAYS.between(lastDateCheck, localDate);
+                conDB.createAndExecuteQueryVenc();
+                while (conDB.RSgetNext()){
 
-                        loteString = "";
-                        LocalDate lote1 = conDB.RSgetDate("VENCIMIENTO_LOTE1");
-                        LocalDate lote2 = conDB.RSgetDate("VENCIMIENTO_LOTE2");
-                        LocalDate lote3 = conDB.RSgetDate("VENCIMIENTO_LOTE3");
-                        LocalDate lote4 = conDB.RSgetDate("VENCIMIENTO_LOTE4");
-                        LocalDate lote5 = conDB.RSgetDate("VENCIMIENTO_LOTE5");
+                    loteString = "";
+                    LocalDate lote1 = conDB.RSgetDate("VENCIMIENTO_LOTE1");
+                    LocalDate lote2 = conDB.RSgetDate("VENCIMIENTO_LOTE2");
+                    LocalDate lote3 = conDB.RSgetDate("VENCIMIENTO_LOTE3");
+                    LocalDate lote4 = conDB.RSgetDate("VENCIMIENTO_LOTE4");
+                    LocalDate lote5 = conDB.RSgetDate("VENCIMIENTO_LOTE5");
 
-                        if (lote1 != null && lote1.compareTo(localDate) <= 0){
-                            loteString = " - LOTE 1";
-                            lotesVencidos += 1;
-                        }
-                        
-                        if (lote2 != null && lote2.compareTo(localDate) <= 0){
-                            loteString += " - LOTE 2";
-                            lotesVencidos += 1;
-                        }
-                        
-                        if (lote3 != null && lote3.compareTo(localDate) <= 0){
-                            loteString += " - LOTE 3";
-                            lotesVencidos += 1;
-                        }
-                            
-                        if (lote4 != null && lote4.compareTo(localDate) <= 0){
-                            loteString += " - LOTE 4";
-                            lotesVencidos += 1;
-                        }
-                        
-                        if (lote5 != null && lote5.compareTo(localDate) <= 0){
-                            loteString += " - LOTE 5";
-                            lotesVencidos += 1;
-                        }
-
-                        if (loteString != ""){
-                            if (MainMenu.GetInstance().activeFrame){
-                                JOptionPane.showMessageDialog(MainMenu.GetInstance(),
-                                            "FECHA VENCIMIENTO ALCANZADA !\nCÓDIGO ARTÍCULO: "+conDB.RSgetString("CODARTICULO")+"\nLOTES VENCIDOS:"+loteString,
-                                            "  Advertencia",
-                                            JOptionPane.WARNING_MESSAGE);
-                            }
-                            else if (ConfigMenu.GetInstance().activeFrame){
-                                JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
-                                            "FECHA VENCIMIENTO ALCANZADA !\nCÓDIGO ARTÍCULO: "+conDB.RSgetString("CODARTICULO")+"\nLOTES VENCIDOS: "+loteString,
-                                            "  Advertencia",
-                                            JOptionPane.WARNING_MESSAGE);
-                            }             
-                        }
+                    if (lote1 != null && lote1.compareTo(localDate) <= 0){
+                        loteString += " - LOTE 1";
+                        lotesVencidos += 1;
                     }
-                    
-                    MainMenu.GetInstance().setLabelVencidos("VENCIDOS: "+lotesVencidos, lotesVencidos);
-                    lotesVencidos = 0;
-                 
-                    
+
+                    if (lote2 != null && lote2.compareTo(localDate) <= 0){
+                        loteString += " - LOTE 2";
+                        lotesVencidos += 1;
+                    }
+
+                    if (lote3 != null && lote3.compareTo(localDate) <= 0){
+                        loteString += " - LOTE 3";
+                        lotesVencidos += 1;
+                    }
+
+                    if (lote4 != null && lote4.compareTo(localDate) <= 0){
+                        loteString += " - LOTE 4";
+                        lotesVencidos += 1;
+                    }
+
+                    if (lote5 != null && lote5.compareTo(localDate) <= 0){
+                        loteString += " - LOTE 5";
+                        lotesVencidos += 1;
+                    }
+
+                    if (loteString != ""){
+                        if (MainMenu.GetInstance().activeFrame){
+                            JOptionPane.showMessageDialog(MainMenu.GetInstance(),
+                                        "FECHA VENCIMIENTO ALCANZADA !\nCÓDIGO ARTÍCULO: "+conDB.RSgetString("CODARTICULO")+"\nLOTES VENCIDOS:"+loteString,
+                                        "  Advertencia",
+                                        JOptionPane.WARNING_MESSAGE);
+                        }
+                        else if (ConfigMenu.GetInstance().activeFrame){
+                            JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
+                                        "FECHA VENCIMIENTO ALCANZADA !\nCÓDIGO ARTÍCULO: "+conDB.RSgetString("CODARTICULO")+"\nLOTES VENCIDOS: "+loteString,
+                                        "  Advertencia",
+                                        JOptionPane.WARNING_MESSAGE);
+                        }             
+                    }
                 }
+
+                MainMenu.GetInstance().setLabelVencidos("VENCIDOS: "+lotesVencidos);
+                lotesVencidos = 0;
                 conDB.disconnect();
 //                System.out.println("Me duermo!");
                 Thread.sleep(Preferences.GetInstance().time); 
