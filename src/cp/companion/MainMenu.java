@@ -21,6 +21,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -46,6 +47,8 @@ public class MainMenu extends javax.swing.JFrame {
     private DefaultTableModel modelVenc;
     private boolean configLoaded = false;
     public boolean activeFrame = true;
+    private TableRowSorter<TableModel> sorterS;
+    private TableRowSorter<TableModel> sorterV;
     
     /**
      * Creates new form MainMenu
@@ -79,7 +82,6 @@ public class MainMenu extends javax.swing.JFrame {
         labelConnection.setBackground(Color.red);   
         labelStocks.setForeground(Color.red);
         labelVencidos.setForeground(Color.red);
-        labelStocksAnt.setForeground(Color.yellow);
         
         modelStocks = (DefaultTableModel) tableStocks.getModel();
         modelVenc = (DefaultTableModel) tableVencimientos.getModel();
@@ -110,17 +112,7 @@ public class MainMenu extends javax.swing.JFrame {
                         Preferences.GetInstance().tcp = "1433";
                     configLoaded = true;
                     
-                    if (Preferences.GetInstance().DBconfigured && conDB.testConnectionSavedPrefs()){ 
-                        labelConnection.setText("CONECTADO");
-                        labelConnection.setOpaque(true);
-                        labelConnection.setBackground(Color.green);  
-                        Preferences.GetInstance().DBConnected = true;
-                        refreshTables();                 
-                        if (daemon == null)
-                            daemon = new Thread(new Daemon(), "Hilo daemon");                  
-                        if (!daemon.isAlive())
-                            daemon.start();    
-                    }
+                    toggleConnectionLabel();
 
                 }
                 else {
@@ -177,10 +169,17 @@ public class MainMenu extends javax.swing.JFrame {
         tableStocks = new javax.swing.JTable();
         labelStocks = new javax.swing.JLabel();
         labelStocksAnt = new javax.swing.JLabel();
+        txtFiltroS = new javax.swing.JTextField();
+        btnFiltrarS = new javax.swing.JButton();
+        btnOrdenarS = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         labelVencidos = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tableVencimientos = new javax.swing.JTable();
+        labelVencidosAnt = new javax.swing.JLabel();
+        txtFiltroV = new javax.swing.JTextField();
+        btnFiltrarV = new javax.swing.JButton();
+        btnOrdenarV = new javax.swing.JButton();
         labelLogo = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -234,10 +233,28 @@ public class MainMenu extends javax.swing.JFrame {
         jScrollPane1.setViewportView(tableStocks);
 
         labelStocks.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        labelStocks.setText("EN STOCK MINIMO: 0");
+        labelStocks.setText("ACABADOS: 0");
 
         labelStocksAnt.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         labelStocksAnt.setText("POR ACABARSE: 0");
+
+        txtFiltroS.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtFiltroSActionPerformed(evt);
+            }
+        });
+
+        btnFiltrarS.setText("FILTRAR");
+        btnFiltrarS.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnFiltrarS.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFiltrarSActionPerformed(evt);
+            }
+        });
+
+        btnOrdenarS.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnOrdenarS.setText("Ordenar por críticos");
+        btnOrdenarS.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -246,23 +263,33 @@ public class MainMenu extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(labelStocks)
-                        .addGap(55, 55, 55)
-                        .addComponent(labelStocksAnt))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnOrdenarS)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(labelStocks)
+                            .addGap(55, 55, 55)
+                            .addComponent(labelStocksAnt)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtFiltroS, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(18, 18, 18)
+                            .addComponent(btnFiltrarS))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addGap(28, 28, 28)
+                .addComponent(btnOrdenarS)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelStocks)
-                    .addComponent(labelStocksAnt))
-                .addGap(22, 22, 22)
+                    .addComponent(labelStocksAnt)
+                    .addComponent(txtFiltroS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnFiltrarS))
+                .addGap(17, 17, 17)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(34, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Stocks", jPanel1);
@@ -297,6 +324,27 @@ public class MainMenu extends javax.swing.JFrame {
         tableVencimientos.setRowHeight(25);
         jScrollPane2.setViewportView(tableVencimientos);
 
+        labelVencidosAnt.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        labelVencidosAnt.setText("POR VENCERSE: 0");
+
+        txtFiltroV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtFiltroVActionPerformed(evt);
+            }
+        });
+
+        btnFiltrarV.setText("FILTRAR");
+        btnFiltrarV.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnFiltrarV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFiltrarVActionPerformed(evt);
+            }
+        });
+
+        btnOrdenarV.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnOrdenarV.setText("Ordenar por críticos");
+        btnOrdenarV.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -304,18 +352,33 @@ public class MainMenu extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(labelVencidos)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnOrdenarV)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addComponent(labelVencidos)
+                            .addGap(61, 61, 61)
+                            .addComponent(labelVencidosAnt)
+                            .addGap(364, 364, 364)
+                            .addComponent(txtFiltroV, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(18, 18, 18)
+                            .addComponent(btnFiltrarV))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addComponent(labelVencidos)
-                .addGap(22, 22, 22)
+                .addGap(28, 28, 28)
+                .addComponent(btnOrdenarV)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelVencidos)
+                    .addComponent(labelVencidosAnt)
+                    .addComponent(txtFiltroV, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnFiltrarV))
+                .addGap(17, 17, 17)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(34, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Vencimientos", jPanel2);
@@ -408,7 +471,7 @@ public class MainMenu extends javax.swing.JFrame {
    
 
     public void checkDBFields(){
-        if (Preferences.GetInstance().DBConnected && conDB.testConnectionSavedPrefs()){         
+        if (DBIsConfiguredAndConnected()){         
             int counter = 5;
             ArrayList<String> array = new ArrayList<String>();
             conDB.connect();
@@ -484,7 +547,7 @@ public class MainMenu extends javax.swing.JFrame {
     }
     
     public void refreshTables(){          
-        if (Preferences.GetInstance().DBconfigured && Preferences.GetInstance().DBConnected && conDB.testConnectionSavedPrefs()){ 
+        if (DBIsConfiguredAndConnected()){ 
             cleanTables();   
             conDB.connect();
             conDB.createAndExecuteQueryStocks();
@@ -501,14 +564,14 @@ public class MainMenu extends javax.swing.JFrame {
         } 
         //********************************************************************
         //Ordenamiento de tablitas
-        TableRowSorter<TableModel> sorterS = new TableRowSorter<>(modelStocks);
+        sorterS = new TableRowSorter<>(modelStocks);
         tableStocks.setRowSorter(sorterS);
         List<RowSorter.SortKey> sortKeysS = new ArrayList<>();
         sortKeysS.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
         sorterS.setSortKeys(sortKeysS);
         sorterS.sort();
         
-        TableRowSorter<TableModel> sorterV = new TableRowSorter<>(modelVenc);
+        sorterV = new TableRowSorter<>(modelVenc);
         tableVencimientos.setRowSorter(sorterV);
         List<RowSorter.SortKey> sortKeysV = new ArrayList<>();
         sortKeysV.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
@@ -516,6 +579,7 @@ public class MainMenu extends javax.swing.JFrame {
         sorterV.sort();
         //********************************************************************
     }
+    
     
     private void btnConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigActionPerformed
         this.setEnabled(false);
@@ -531,7 +595,54 @@ public class MainMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
-        if (Preferences.GetInstance().DBconfigured && conDB.testConnectionSavedPrefs()){
+        toggleConnectionLabel();
+    }//GEN-LAST:event_btnConnectActionPerformed
+
+    private void btnFiltrarSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFiltrarSActionPerformed
+        sorterS.setRowFilter(RowFilter.regexFilter("(?i)" + txtFiltroS.getText()));
+        sorterS.sort();
+    }//GEN-LAST:event_btnFiltrarSActionPerformed
+
+    private void txtFiltroSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFiltroSActionPerformed
+
+    }//GEN-LAST:event_txtFiltroSActionPerformed
+
+    private void txtFiltroVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFiltroVActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtFiltroVActionPerformed
+
+    private void btnFiltrarVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFiltrarVActionPerformed
+        sorterV.setRowFilter(RowFilter.regexFilter("(?i)" + txtFiltroV.getText()));
+        sorterV.sort();
+    }//GEN-LAST:event_btnFiltrarVActionPerformed
+    
+    static MainMenu GetInstance(){
+        if (selfInstance == null){
+            selfInstance = new MainMenu();
+        }
+        return selfInstance;
+    }
+    
+    public boolean DBIsConfigured(){
+        return Preferences.GetInstance().DBconfigured && conDB.testConnectionSavedPrefs();
+    }
+    
+    public boolean DBIsConfiguredAndConnected(){
+        return Preferences.GetInstance().DBconfigured && Preferences.GetInstance().DBConnected && conDB.testConnectionSavedPrefs();
+    }
+    
+    private boolean checkConfigFile(){
+        if (prop.getProperty("IP") != null && prop.getProperty("TCP") != null && prop.getProperty("Database") != null && prop.getProperty("User") != null && prop.getProperty("Password") != null){
+            if ((prop.getProperty("Instance") != null && (prop.getProperty("Instance").compareTo("true") == 0 || prop.getProperty("Instance").compareTo("false") == 0)) && (prop.getProperty("DBconfigured") != null && (prop.getProperty("DBconfigured").compareTo("true") == 0 || prop.getProperty("DBconfigured").compareTo("false") == 0))){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    
+    public void toggleConnectionLabel(){
+        if (DBIsConfigured()){
             if (Preferences.GetInstance().DBConnected){
                 labelConnection.setText("DESCONECTADO");
                 labelConnection.setOpaque(true);
@@ -556,22 +667,6 @@ public class MainMenu extends javax.swing.JFrame {
                     daemon.start();
             }
         }
-    }//GEN-LAST:event_btnConnectActionPerformed
-    
-    static MainMenu GetInstance(){
-        if (selfInstance == null){
-            selfInstance = new MainMenu();
-        }
-        return selfInstance;
-    }
-    
-    private boolean checkConfigFile(){
-        if (prop.getProperty("IP") != null && prop.getProperty("TCP") != null && prop.getProperty("Database") != null && prop.getProperty("User") != null && prop.getProperty("Password") != null){
-            if ((prop.getProperty("Instance") != null && (prop.getProperty("Instance").compareTo("true") == 0 || prop.getProperty("Instance").compareTo("false") == 0)) && (prop.getProperty("DBconfigured") != null && (prop.getProperty("DBconfigured").compareTo("true") == 0 || prop.getProperty("DBconfigured").compareTo("false") == 0))){
-                return true;
-            }
-        }
-        return false;
     }
     
     
@@ -615,6 +710,10 @@ public class MainMenu extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConfig;
     private javax.swing.JButton btnConnect;
+    private javax.swing.JButton btnFiltrarS;
+    private javax.swing.JButton btnFiltrarV;
+    private javax.swing.JButton btnOrdenarS;
+    private javax.swing.JButton btnOrdenarV;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -629,7 +728,10 @@ public class MainMenu extends javax.swing.JFrame {
     private javax.swing.JLabel labelStocks;
     private javax.swing.JLabel labelStocksAnt;
     private javax.swing.JLabel labelVencidos;
+    private javax.swing.JLabel labelVencidosAnt;
     private javax.swing.JTable tableStocks;
     private javax.swing.JTable tableVencimientos;
+    private javax.swing.JTextField txtFiltroS;
+    private javax.swing.JTextField txtFiltroV;
     // End of variables declaration//GEN-END:variables
 }

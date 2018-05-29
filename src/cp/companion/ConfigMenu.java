@@ -82,18 +82,20 @@ public class ConfigMenu extends javax.swing.JFrame {
         tableArticlesStock.setAutoCreateRowSorter(true);  
         tableArticlesVenc.setAutoCreateRowSorter(true);      
         
-        conDB.connect();
-        conDB.createAndExecuteQueryDptos();
-        while (conDB.RSgetNext()){
-            comboDepStock.addItem(conDB.RSgetString("NUMDPTO"));
-            comboDepVenc.addItem(conDB.RSgetString("NUMDPTO"));
+        if (MainMenu.GetInstance().DBIsConfiguredAndConnected()){
+            conDB.connect();
+            conDB.createAndExecuteQueryDptos();
+            while (conDB.RSgetNext()){
+                comboDepStock.addItem(conDB.RSgetString("NUMDPTO"));
+                comboDepVenc.addItem(conDB.RSgetString("NUMDPTO"));
+            }
+            conDB.disconnect();
+
+            loadTableStocks();
+            loadTableVencs();    
+
+            createDefaultPreferences();
         }
-        conDB.disconnect();
-        
-        loadTableStocks();
-        loadTableVencs();    
-        
-        createDefaultPreferences();
     }
 
 

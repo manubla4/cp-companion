@@ -3,8 +3,8 @@ package cp.companion;
 public class Preferences {
 
     private static Preferences selfInstance = null;
-    public String ip = "";
-    public String tcp = "";
+    public String ip = "localhost";
+    public String tcp = "1433";
     public String user = "";
     public String password = "";
     public String databaseName = "";

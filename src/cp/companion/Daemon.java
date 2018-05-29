@@ -109,7 +109,7 @@ class Daemon implements Runnable {
                     }    
                 }
                 
-                MainMenu.GetInstance().setLabelStocks("EN STOCK MINIMO: "+ articulosSinStock);
+                MainMenu.GetInstance().setLabelStocks("ACABADOS: "+ articulosSinStock);
                 MainMenu.GetInstance().setLabelStocksAnt("POR ACABARSE: "+ articulosPorAcabarse);
                 articulosSinStock = 0;
                 articulosPorAcabarse = 0;
