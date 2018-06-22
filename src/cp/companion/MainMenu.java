@@ -112,7 +112,7 @@ public class MainMenu extends javax.swing.JFrame {
                         Preferences.GetInstance().tcp = "1433";
                     configLoaded = true;
                     
-                    toggleConnectionLabel();
+                    toggleConnection();
 
                 }
                 else {
@@ -172,6 +172,7 @@ public class MainMenu extends javax.swing.JFrame {
         txtFiltroS = new javax.swing.JTextField();
         btnFiltrarS = new javax.swing.JButton();
         btnOrdenarS = new javax.swing.JButton();
+        btnQuitarFiltrosS = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         labelVencidos = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -180,12 +181,14 @@ public class MainMenu extends javax.swing.JFrame {
         txtFiltroV = new javax.swing.JTextField();
         btnFiltrarV = new javax.swing.JButton();
         btnOrdenarV = new javax.swing.JButton();
+        btnQuitarFiltrosV = new javax.swing.JButton();
         labelLogo = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         btnRefresh = new javax.swing.JButton();
         labelConnection = new javax.swing.JLabel();
         btnConnect = new javax.swing.JButton();
+        btnAlert = new javax.swing.JButton();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -238,12 +241,14 @@ public class MainMenu extends javax.swing.JFrame {
         labelStocksAnt.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         labelStocksAnt.setText("POR ACABARSE: 0");
 
+        txtFiltroS.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         txtFiltroS.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtFiltroSActionPerformed(evt);
             }
         });
 
+        btnFiltrarS.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         btnFiltrarS.setText("FILTRAR");
         btnFiltrarS.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnFiltrarS.addActionListener(new java.awt.event.ActionListener() {
@@ -252,9 +257,18 @@ public class MainMenu extends javax.swing.JFrame {
             }
         });
 
-        btnOrdenarS.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnOrdenarS.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         btnOrdenarS.setText("Ordenar por críticos");
         btnOrdenarS.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        btnQuitarFiltrosS.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
+        btnQuitarFiltrosS.setText("QUITAR FILTROS");
+        btnQuitarFiltrosS.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnQuitarFiltrosS.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQuitarFiltrosSActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -262,18 +276,19 @@ public class MainMenu extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(30, 30, 30)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnOrdenarS)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addComponent(labelStocks)
-                            .addGap(55, 55, 55)
-                            .addComponent(labelStocksAnt)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtFiltroS, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(btnFiltrarS))
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(labelStocks)
+                        .addGap(40, 40, 40)
+                        .addComponent(labelStocksAnt)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnQuitarFiltrosS)
+                        .addGap(45, 45, 45)
+                        .addComponent(txtFiltroS, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnFiltrarS))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -286,10 +301,11 @@ public class MainMenu extends javax.swing.JFrame {
                     .addComponent(labelStocks)
                     .addComponent(labelStocksAnt)
                     .addComponent(txtFiltroS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnFiltrarS))
+                    .addComponent(btnFiltrarS)
+                    .addComponent(btnQuitarFiltrosS))
                 .addGap(17, 17, 17)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Stocks", jPanel1);
@@ -327,12 +343,14 @@ public class MainMenu extends javax.swing.JFrame {
         labelVencidosAnt.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         labelVencidosAnt.setText("POR VENCERSE: 0");
 
+        txtFiltroV.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         txtFiltroV.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtFiltroVActionPerformed(evt);
             }
         });
 
+        btnFiltrarV.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         btnFiltrarV.setText("FILTRAR");
         btnFiltrarV.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnFiltrarV.addActionListener(new java.awt.event.ActionListener() {
@@ -341,9 +359,18 @@ public class MainMenu extends javax.swing.JFrame {
             }
         });
 
-        btnOrdenarV.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnOrdenarV.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         btnOrdenarV.setText("Ordenar por críticos");
         btnOrdenarV.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        btnQuitarFiltrosV.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
+        btnQuitarFiltrosV.setText("QUITAR FILTROS");
+        btnQuitarFiltrosV.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnQuitarFiltrosV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQuitarFiltrosVActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -352,18 +379,21 @@ public class MainMenu extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnOrdenarV)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(jPanel2Layout.createSequentialGroup()
-                            .addComponent(labelVencidos)
-                            .addGap(61, 61, 61)
-                            .addComponent(labelVencidosAnt)
-                            .addGap(364, 364, 364)
-                            .addComponent(txtFiltroV, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(btnFiltrarV))
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(30, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(btnOrdenarV)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(labelVencidos)
+                        .addGap(40, 40, 40)
+                        .addComponent(labelVencidosAnt)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 214, Short.MAX_VALUE)
+                        .addComponent(btnQuitarFiltrosV)
+                        .addGap(45, 45, 45)
+                        .addComponent(txtFiltroV, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnFiltrarV)))
+                .addGap(30, 30, 30))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -375,10 +405,11 @@ public class MainMenu extends javax.swing.JFrame {
                     .addComponent(labelVencidos)
                     .addComponent(labelVencidosAnt)
                     .addComponent(txtFiltroV, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnFiltrarV))
+                    .addComponent(btnFiltrarV)
+                    .addComponent(btnQuitarFiltrosV))
                 .addGap(17, 17, 17)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 417, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Vencimientos", jPanel2);
@@ -409,6 +440,14 @@ public class MainMenu extends javax.swing.JFrame {
             }
         });
 
+        btnAlert.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cp/companion/resources/alert.png"))); // NOI18N
+        btnAlert.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnAlert.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAlertActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -424,16 +463,21 @@ public class MainMenu extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(47, 47, 47)
                         .addComponent(labelLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 668, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
+                                .addGap(54, 54, 54)
                                 .addComponent(btnRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(43, 43, 43)
-                                .addComponent(btnConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(btnConnect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(labelConnection, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(34, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnAlert, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 71, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(labelConnection, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(31, 31, 31)))))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -441,8 +485,9 @@ public class MainMenu extends javax.swing.JFrame {
                 .addGap(28, 28, 28)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnConfig, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnConfig, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnAlert, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addComponent(labelConnection, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -595,7 +640,7 @@ public class MainMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
-        toggleConnectionLabel();
+        toggleConnection();
     }//GEN-LAST:event_btnConnectActionPerformed
 
     private void btnFiltrarSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFiltrarSActionPerformed
@@ -615,6 +660,22 @@ public class MainMenu extends javax.swing.JFrame {
         sorterV.setRowFilter(RowFilter.regexFilter("(?i)" + txtFiltroV.getText()));
         sorterV.sort();
     }//GEN-LAST:event_btnFiltrarVActionPerformed
+
+    private void btnQuitarFiltrosSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuitarFiltrosSActionPerformed
+        sorterS.setRowFilter(RowFilter.regexFilter("(?i)"));
+        sorterS.sort();
+        txtFiltroS.setText("");
+    }//GEN-LAST:event_btnQuitarFiltrosSActionPerformed
+
+    private void btnQuitarFiltrosVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuitarFiltrosVActionPerformed
+        sorterV.setRowFilter(RowFilter.regexFilter("(?i)"));
+        sorterV.sort();
+        txtFiltroV.setText("");
+    }//GEN-LAST:event_btnQuitarFiltrosVActionPerformed
+
+    private void btnAlertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAlertActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnAlertActionPerformed
     
     static MainMenu GetInstance(){
         if (selfInstance == null){
@@ -641,7 +702,7 @@ public class MainMenu extends javax.swing.JFrame {
     }
     
     
-    public void toggleConnectionLabel(){
+    public void toggleConnection(){
         if (DBIsConfigured()){
             if (Preferences.GetInstance().DBConnected){
                 labelConnection.setText("DESCONECTADO");
@@ -708,12 +769,15 @@ public class MainMenu extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAlert;
     private javax.swing.JButton btnConfig;
     private javax.swing.JButton btnConnect;
     private javax.swing.JButton btnFiltrarS;
     private javax.swing.JButton btnFiltrarV;
     private javax.swing.JButton btnOrdenarS;
     private javax.swing.JButton btnOrdenarV;
+    private javax.swing.JButton btnQuitarFiltrosS;
+    private javax.swing.JButton btnQuitarFiltrosV;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

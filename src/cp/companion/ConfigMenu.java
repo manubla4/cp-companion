@@ -74,6 +74,7 @@ public class ConfigMenu extends javax.swing.JFrame {
         textTCP.setText(Preferences.GetInstance().tcp);
         textNameDB.setText(Preferences.GetInstance().databaseName);
         textUser.setText(Preferences.GetInstance().user);
+        textPass.setText(Preferences.GetInstance().password);
         
         modelStocks = (DefaultTableModel) tableArticlesStock.getModel();
         modelVenc = (DefaultTableModel) tableArticlesVenc.getModel();
@@ -207,7 +208,6 @@ public class ConfigMenu extends javax.swing.JFrame {
         MainMenu.GetInstance().setEnabled(true);
         this.setVisible(false);
         labelResult.setText("");
-        textPass.setText("");
         labelResult.setOpaque(false);   
     }
     
@@ -698,7 +698,7 @@ public class ConfigMenu extends javax.swing.JFrame {
         Preferences.GetInstance().tcp = textTCP.getText();
         Preferences.GetInstance().instance = checkInstance.isSelected();       
         
-        if (connectionSuccess){
+        if (conDB.testConnectionSavedPrefs()){
             Preferences.GetInstance().DBconfigured = true;
             MainMenu.GetInstance().getLabelCon().setText("CONECTADO");
             MainMenu.GetInstance().getLabelCon().setOpaque(true);
