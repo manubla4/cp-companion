@@ -8,8 +8,12 @@ package cp.companion;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -17,6 +21,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -49,6 +55,7 @@ public class MainMenu extends javax.swing.JFrame {
     public boolean activeFrame = true;
     private TableRowSorter<TableModel> sorterS;
     private TableRowSorter<TableModel> sorterV;
+    public List<String> alertados = new ArrayList<>();
     
     /**
      * Creates new form MainMenu
@@ -133,6 +140,27 @@ public class MainMenu extends javax.swing.JFrame {
                 }
             }  
         }
+        try {
+            FileReader fileReader = new FileReader("historial.txt");
+            BufferedReader br = new BufferedReader(fileReader);
+            String st;
+            while ((st = br.readLine()) != null){
+                String[] linea = st.split(",");
+                System.out.println(linea[0]);
+                alertados.add(linea[0]);
+            }
+        
+        
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+
+        
+        
+        
                       
     }
 
@@ -674,7 +702,7 @@ public class MainMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_btnQuitarFiltrosVActionPerformed
 
     private void btnAlertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAlertActionPerformed
-        // TODO add your handling code here:
+        AlertsMenu.GetInstance().setVisible(true);
     }//GEN-LAST:event_btnAlertActionPerformed
     
     static MainMenu GetInstance(){

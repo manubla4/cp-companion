@@ -5,12 +5,15 @@
  */
 package cp.companion;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.Period;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -25,6 +28,9 @@ import javax.swing.JOptionPane;
  */
 class Daemon implements Runnable {
     
+    private FileWriter fileWriter;
+    private BufferedWriter bufferedWriter;
+    private ConnectionDB conDB = new ConnectionDB();
     public static final String queryDepartamentos = "SELECT NUMDPTO FROM DEPARTAMENTO";
     public static final String queryStocks = "SELECT st.CODARTICULO, ar.DESCRIPCION, st.CODALMACEN, al.NOMBREALMACEN, "
             + "st.STOCK, st.MINIMO, st.MAXIMO FROM STOCKS st JOIN ARTICULOS ar ON ar.CODARTICULO = st.CODARTICULO "
@@ -45,7 +51,7 @@ class Daemon implements Runnable {
                                                 "ALTER TABLE ARTICULOSCAMPOSLIBRES ADD VENCIMIENTO_LOTE",
                                                 "IF @@TRANCOUNT > 0 COMMIT TRAN"};
     
-    private ConnectionDB conDB = new ConnectionDB();
+    
     
     public void run() {
         try {
@@ -74,38 +80,53 @@ class Daemon implements Runnable {
                     
                     if (stock <= minimo){
                         articulosSinStock += 1;
-                        if (MainMenu.GetInstance().activeFrame){
-                            JOptionPane.showMessageDialog(MainMenu.GetInstance(),
-                                        "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+articulo,
-                                        "  Advertencia",
-                                        JOptionPane.WARNING_MESSAGE);
-                        }
-                        else if (ConfigMenu.GetInstance().activeFrame){
-                            JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
-                                        "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+articulo,
-                                        "  Advertencia",
-                                        JOptionPane.WARNING_MESSAGE);
+                        if (!MainMenu.GetInstance().alertados.contains(articulo+"-S")){
+                            fileWriter = new FileWriter("historial.txt",true);
+                            bufferedWriter = new BufferedWriter(fileWriter);
+                            bufferedWriter.write(articulo+"-S,Stock mínimo alcanzado en artículo "+articulo);
+                            bufferedWriter.newLine();
+                            bufferedWriter.close();
+
+                            if (MainMenu.GetInstance().activeFrame){
+                                JOptionPane.showMessageDialog(MainMenu.GetInstance(),
+                                            "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+articulo,
+                                            "  Advertencia",
+                                            JOptionPane.WARNING_MESSAGE);
+                            }
+                            else if (ConfigMenu.GetInstance().activeFrame){
+                                JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
+                                            "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+articulo,
+                                            "  Advertencia",
+                                            JOptionPane.WARNING_MESSAGE);
+                            }
                         }
                     }      
                     
                     else if (stock <= (minimo + anticipation)){
                        articulosPorAcabarse += 1;
-                       if (MainMenu.GetInstance().activeFrame){
-                            JOptionPane.showMessageDialog(MainMenu.GetInstance(),
-                                        "STOCK A SOLO "+ Math.round(stock-minimo) +" UNIDADES DE ALCANZAR EL MINIMO !\nCÓDIGO ARTÍCULO: "+articulo,
-                                        "  Advertencia",
-                                        JOptionPane.WARNING_MESSAGE);
-                        }
-                        else if (ConfigMenu.GetInstance().activeFrame){
-                            JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
-                                        "STOCK A SOLO "+ Math.round(stock-minimo) +" UNIDADES DE ALCANZAR EL MINIMO !\nCÓDIGO ARTÍCULO: "+articulo,
-                                        "  Advertencia",
-                                        JOptionPane.WARNING_MESSAGE);
-                        } 
-                        props.setProperty("STOCK_"+articulo, Integer.toString(Math.round(anticipation-1)));
-                        OutputStream out = new FileOutputStream(f);
-                        props.store(out, "ANTICIPATION PROPERTIES");
-                        out.close();
+                       if (!MainMenu.GetInstance().alertados.contains(articulo+"-SAnt")){
+                            fileWriter = new FileWriter("historial.txt",true);
+                            bufferedWriter = new BufferedWriter(fileWriter);
+                            bufferedWriter.write(articulo+"-SWarn,Stock mínimo alcanzado en artículo "+articulo);
+                            bufferedWriter.newLine();
+                            bufferedWriter.close();
+                            if (MainMenu.GetInstance().activeFrame){
+                                 JOptionPane.showMessageDialog(MainMenu.GetInstance(),
+                                             "STOCK A SOLO "+ Math.round(stock-minimo) +" UNIDADES DE ALCANZAR EL MINIMO !\nCÓDIGO ARTÍCULO: "+articulo,
+                                             "  Advertencia",
+                                             JOptionPane.WARNING_MESSAGE);
+                             }
+                             else if (ConfigMenu.GetInstance().activeFrame){
+                                 JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
+                                             "STOCK A SOLO "+ Math.round(stock-minimo) +" UNIDADES DE ALCANZAR EL MINIMO !\nCÓDIGO ARTÍCULO: "+articulo,
+                                             "  Advertencia",
+                                             JOptionPane.WARNING_MESSAGE);
+                             } 
+                             props.setProperty("STOCK_"+articulo, Integer.toString(Math.round(anticipation-1)));
+                             OutputStream out = new FileOutputStream(f);
+                             props.store(out, "ANTICIPATION PROPERTIES");
+                             out.close();
+                       }
                     }    
                 }
                 
@@ -152,18 +173,26 @@ class Daemon implements Runnable {
                     }
 
                     if (loteString != ""){
-                        if (MainMenu.GetInstance().activeFrame){
-                            JOptionPane.showMessageDialog(MainMenu.GetInstance(),
-                                        "FECHA VENCIMIENTO ALCANZADA !\nCÓDIGO ARTÍCULO: "+conDB.RSgetString("CODARTICULO")+"\nLOTES VENCIDOS:"+loteString,
-                                        "  Advertencia",
-                                        JOptionPane.WARNING_MESSAGE);
+                        String articulo = conDB.RSgetString("CODARTICULO");
+                        if (!MainMenu.GetInstance().alertados.contains(articulo+"-V")){
+                            fileWriter = new FileWriter("historial.txt",true);
+                            bufferedWriter = new BufferedWriter(fileWriter);
+                            bufferedWriter.write(articulo+"-V,Fecha vencimiento alcanzada en artículo "+articulo+" lotes:"+loteString);
+                            bufferedWriter.newLine();
+                            bufferedWriter.close();
+                            if (MainMenu.GetInstance().activeFrame){
+                                JOptionPane.showMessageDialog(MainMenu.GetInstance(),
+                                            "FECHA VENCIMIENTO ALCANZADA !\nCÓDIGO ARTÍCULO: "+articulo+"\nLOTES VENCIDOS:"+loteString,
+                                            "  Advertencia",
+                                            JOptionPane.WARNING_MESSAGE);
+                            }
+                            else if (ConfigMenu.GetInstance().activeFrame){
+                                JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
+                                            "FECHA VENCIMIENTO ALCANZADA !\nCÓDIGO ARTÍCULO: "+articulo+"\nLOTES VENCIDOS: "+loteString,
+                                            "  Advertencia",
+                                            JOptionPane.WARNING_MESSAGE);
+                            }  
                         }
-                        else if (ConfigMenu.GetInstance().activeFrame){
-                            JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
-                                        "FECHA VENCIMIENTO ALCANZADA !\nCÓDIGO ARTÍCULO: "+conDB.RSgetString("CODARTICULO")+"\nLOTES VENCIDOS: "+loteString,
-                                        "  Advertencia",
-                                        JOptionPane.WARNING_MESSAGE);
-                        }             
                     }
                 }
 
