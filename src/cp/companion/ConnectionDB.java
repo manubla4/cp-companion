@@ -28,21 +28,21 @@ public class ConnectionDB {
             url = "jdbc:sqlserver://" + server + ";databaseName=" + databaseName + ";user=" + user + ";password=" + password;
             if (instance) 
                 url = "jdbc:sqlserver://" + server + "\\SQLEXPRESS;databaseName=" + databaseName + ";user=" + user + ";password=" + password;
-            System.out.println("PROBANDO CONEXIÓN CON URL = " + url);
+            //System.out.println("PROBANDO CONEXIÓN CON URL = " + url);
             con = DriverManager.getConnection(url);
             disconnect();
             return true;
         }catch (SQLException ex) {
-            System.out.println("ERROR PROBANDO CONEXIÓN: " + ex);
-            ex.printStackTrace();
+            //System.out.println("ERROR PROBANDO CONEXIÓN: " + ex);
+            //ex.printStackTrace();
             return false;
         }catch (ClassNotFoundException ex) {
-            System.out.println("ERROR PROBANDO CONEXIÓN: " + ex);
-            ex.printStackTrace();
+            //System.out.println("ERROR PROBANDO CONEXIÓN: " + ex);
+            //ex.printStackTrace();
             return false;
         }catch (Exception ex) {
-            System.out.println("ERROR PROBANDO CONEXIÓN: " + ex);
-            ex.printStackTrace();
+            //System.out.println("ERROR PROBANDO CONEXIÓN: " + ex);
+            //ex.printStackTrace();
             return false;
         }
     }
@@ -54,21 +54,21 @@ public class ConnectionDB {
             url = "jdbc:sqlserver://" + Preferences.GetInstance().ip +":"+Preferences.GetInstance().tcp+ ";databaseName=" + Preferences.GetInstance().databaseName + ";user=" + Preferences.GetInstance().user + ";password=" + Preferences.GetInstance().password;
             if (Preferences.GetInstance().instance) 
                 url = "jdbc:sqlserver://" + Preferences.GetInstance().ip +":"+Preferences.GetInstance().tcp + "\\SQLEXPRESS;databaseName=" + Preferences.GetInstance().databaseName + ";user=" + Preferences.GetInstance().user + ";password=" + Preferences.GetInstance().password;
-            System.out.println("PROBANDO CONEXIÓN CON URL = " + url);
+            //System.out.println("PROBANDO CONEXIÓN CON URL = " + url);
             con = DriverManager.getConnection(url);
             disconnect();
             return true;
         }catch (SQLException ex) {
-            System.out.println("ERROR PROBANDO CONEXIÓN GUARDADA: " + ex);
-            ex.printStackTrace();
+            //System.out.println("ERROR PROBANDO CONEXIÓN GUARDADA: " + ex);
+            //ex.printStackTrace();
             return false;
         }catch (ClassNotFoundException ex) {
-            System.out.println("ERROR PROBANDO CONEXIÓN GUARDADA: " + ex);
-            ex.printStackTrace();
+            //System.out.println("ERROR PROBANDO CONEXIÓN GUARDADA: " + ex);
+            //ex.printStackTrace();
             return false;
         }catch (Exception ex) {
-            System.out.println("ERROR PROBANDO CONEXIÓN GUARDADA: " + ex);
-            ex.printStackTrace();
+            //System.out.println("ERROR PROBANDO CONEXIÓN GUARDADA: " + ex);
+            //ex.printStackTrace();
             return false;
         }
         
@@ -82,17 +82,17 @@ public class ConnectionDB {
             if (Preferences.GetInstance().instance) 
                 url = "jdbc:sqlserver://" + Preferences.GetInstance().ip +":"+Preferences.GetInstance().tcp + "\\SQLEXPRESS;databaseName=" + Preferences.GetInstance().databaseName + ";user=" + Preferences.GetInstance().user + ";password=" + Preferences.GetInstance().password;
             con = DriverManager.getConnection(url);
-            System.out.println("..................CONEXIÓN ESTABLECIDA..................");
+            //System.out.println("..................CONEXIÓN ESTABLECIDA..................");
         }catch (SQLException ex) {
-            System.out.println("ERROR AL CONECTAR: " + ex);
-            ex.printStackTrace();
+            //System.out.println("ERROR AL CONECTAR: " + ex);
+            //ex.printStackTrace();
             onFailure();
         }catch (ClassNotFoundException ex) {
-            System.out.println("ERROR AL CONECTAR: " + ex);
-            ex.printStackTrace();
+            //System.out.println("ERROR AL CONECTAR: " + ex);
+            //ex.printStackTrace();
         }catch (Exception ex) {
-            System.out.println("ERROR AL CONECTAR: " + ex);    
-            ex.printStackTrace();
+            //System.out.println("ERROR AL CONECTAR: " + ex);    
+            //ex.printStackTrace();
         }  
    }
 
@@ -110,8 +110,8 @@ public class ConnectionDB {
                 st.close();
             }
         }catch (SQLException ex) {
-            System.out.println("ERROR AL DESCONECTAR: " + ex); 
-            ex.printStackTrace();
+            //System.out.println("ERROR AL DESCONECTAR: " + ex); 
+            //ex.printStackTrace();
             onFailure();
         }
     }
@@ -156,12 +156,12 @@ public class ConnectionDB {
             st = con.createStatement();
             rs = st.executeQuery(Daemon.queryDepartamentos);
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR QUERY DPTOS: " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR QUERY DPTOS: " + ex);  
+            //ex.printStackTrace();
             onFailure();
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR QUERY DPTOS: " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR QUERY DPTOS: " + ex);  
+            //ex.printStackTrace();
         }   
    }
     
@@ -170,40 +170,57 @@ public class ConnectionDB {
             st = con.createStatement();
             rs = st.executeQuery(Daemon.queryStocks);
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
+            //ex.printStackTrace();
             onFailure();
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
+            //ex.printStackTrace();
         }   
    }
     
+    
+    public void createAndExecuteQueryStocksOfDepartment(String department) {
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(Daemon.queryStocks + " WHERE ar.DPTO = "+ department);
+        }catch (SQLException ex) {
+            //System.out.println("ERROR AL EJECUTAR QUERY STOCKS OF DEPARTMENT: " + ex);  
+            //ex.printStackTrace();
+            onFailure();
+        }catch (Exception ex) {
+            //System.out.println("ERROR AL EJECUTAR QUERY STOCKS OF DEPARTMENT: " + ex);  
+            //ex.printStackTrace();
+        }   
+   }
+        
+        
     public void createAndExecuteQueryVencOfDepartment(String department) {
         try {
             st = con.createStatement();
             rs = st.executeQuery(Daemon.queryVencimientos + " WHERE ar.DPTO = "+ department);
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR QUERY VENC OF DEPARTMENT: " + ex);  
+            //ex.printStackTrace();
             onFailure();
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR QUERY VENC OF DEPARTMENT: " + ex);  
+            //ex.printStackTrace();
         }   
    }
+    
     
     public void createAndExecuteQueryVenc() {
         try {
             st = con.createStatement();
             rs = st.executeQuery(Daemon.queryVencimientos);
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR QUERY VENC: " + ex);  
+            //ex.printStackTrace();
             onFailure();
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR QUERY STOCKS: " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR QUERY VENC: " + ex);  
+            //ex.printStackTrace();
         }   
    }
     
@@ -213,12 +230,12 @@ public class ConnectionDB {
             st = con.createStatement();
             rs = st.executeQuery(Daemon.queryFieldsExist);
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR QUERY FIELDS: " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR QUERY FIELDS: " + ex);  
+            //ex.printStackTrace();
             onFailure();
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR QUERY FIELDS: " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR QUERY FIELDS: " + ex);  
+            //ex.printStackTrace();
         }   
    }
     
@@ -227,13 +244,13 @@ public class ConnectionDB {
         try {
             return rs.next();
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR rs.next(): " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR rs.next(): " + ex);  
+            //ex.printStackTrace();
             onFailure();
             return false;
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR rs.next(): " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR rs.next(): " + ex);  
+            //ex.printStackTrace();
             return false;
         }   
    }
@@ -242,13 +259,13 @@ public class ConnectionDB {
         try {
             return rs.getString(key);
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR rs.getString("+key+"): " + ex);  
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR rs.getString("+key+"): " + ex);  
+            //ex.printStackTrace();
             onFailure();
             return "";
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR rs.getString("+key+"): " + ex);   
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR rs.getString("+key+"): " + ex);   
+            //ex.printStackTrace();
             return "";
         }   
    }
@@ -257,13 +274,13 @@ public class ConnectionDB {
         try {
             return rs.getInt(key);
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR rs.getInt("+key+"): " + ex); 
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR rs.getInt("+key+"): " + ex); 
+            //ex.printStackTrace();
             onFailure();
             return 0;
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR rs.getInt("+key+"): " + ex);   
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR rs.getInt("+key+"): " + ex);   
+            //ex.printStackTrace();
             return 0;
         }   
    }
@@ -272,13 +289,13 @@ public class ConnectionDB {
         try {
             return rs.getFloat(key);
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR rs.getFloat("+key+"): " + ex); 
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR rs.getFloat("+key+"): " + ex); 
+            //ex.printStackTrace();
             onFailure();
             return 0;
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR rs.getFloat("+key+"): " + ex);   
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR rs.getFloat("+key+"): " + ex);   
+            //ex.printStackTrace();
             return 0;
         }   
    }
@@ -288,13 +305,13 @@ public class ConnectionDB {
         try {
             return rs.getDate(key).toLocalDate();
         }catch (SQLException ex) {
-            System.out.println("ERROR AL EJECUTAR rs.getDate("+key+"): " + ex); 
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR rs.getDate("+key+"): " + ex); 
+            //ex.printStackTrace();
             onFailure();
             return null;
         }catch (Exception ex) {
-            System.out.println("ERROR AL EJECUTAR rs.getDate("+key+"): " + ex);   
-            ex.printStackTrace();
+            //System.out.println("ERROR AL EJECUTAR rs.getDate("+key+"): " + ex);   
+            //ex.printStackTrace();
             return null;
         }   
    }

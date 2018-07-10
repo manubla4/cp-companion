@@ -109,7 +109,7 @@ public class ConfigMenu extends javax.swing.JFrame {
                 conDB.connect();
                 conDB.createAndExecuteQueryStocks();
                 while (conDB.RSgetNext()){
-                    props.setProperty("STOCK_"+conDB.RSgetString("CODARTICULO"), Integer.toString(DEFAULT_ANTICIPATION));
+                    props.setProperty("STOCK_"+conDB.RSgetString("CODARTICULO")+"_"+conDB.RSgetString("CODALMACEN"), Integer.toString(DEFAULT_ANTICIPATION));
                 }
                 conDB.createAndExecuteQueryVenc();
                 while (conDB.RSgetNext()){
@@ -144,17 +144,17 @@ public class ConfigMenu extends javax.swing.JFrame {
         if (comboDepStock.getSelectedItem().toString().compareTo("<<TODOS LOS DEPARTAMENTOS>>") == 0 )
         {
             conDB.connect();
-            conDB.createAndExecuteQueryVenc();
+            conDB.createAndExecuteQueryStocks();
             while (conDB.RSgetNext()){
-                modelStocks.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION")});
+                modelStocks.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("CODALMACEN"), conDB.RSgetString("DESCRIPCION")});
             }
             conDB.disconnect();
         }
         else{
             conDB.connect();
-            conDB.createAndExecuteQueryVencOfDepartment(comboDepStock.getSelectedItem().toString());
+            conDB.createAndExecuteQueryStocksOfDepartment(comboDepStock.getSelectedItem().toString());
             while (conDB.RSgetNext()){
-                modelStocks.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("DESCRIPCION")});
+                modelStocks.addRow(new Object[]{conDB.RSgetString("CODARTICULO"), conDB.RSgetString("CODALMACEN"), conDB.RSgetString("DESCRIPCION")});
             }
             conDB.disconnect();
         }
@@ -421,14 +421,14 @@ public class ConfigMenu extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Artículo", "Descripción", ""
+                "Artículo", "Almacen", "Descripción", ""
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, true
+                false, false, false, true
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -831,20 +831,20 @@ public class ConfigMenu extends javax.swing.JFrame {
             
             boolean flag = false;
             for (int i = 0; i < tableArticlesStock.getRowCount() ; i++) {
-                if (tableArticlesStock.getValueAt(i, 2) != null && (boolean)tableArticlesStock.getValueAt(i, 2)){
+                if (tableArticlesStock.getValueAt(i, 3) != null && (boolean)tableArticlesStock.getValueAt(i, 3)){
                     flag = true;
-                    props.setProperty("STOCK_"+tableArticlesStock.getValueAt(i, 0).toString(), spinnerStock.getValue().toString());
+                    props.setProperty("STOCK_"+tableArticlesStock.getValueAt(i, 0).toString()+"_"+tableArticlesStock.getValueAt(i, 1).toString(), spinnerStock.getValue().toString());
                 }
             }
             if (flag){
+                OutputStream out = new FileOutputStream(f);
+                props.store(out, "ANTICIPATION PROPERTIES");
+                out.close();
                 JOptionPane.showMessageDialog(this,
                                             "Las preferencias fueron correctamente actualizadas !",
                                             " Exito",
                                             JOptionPane.INFORMATION_MESSAGE,
                                             successIcon);
-                OutputStream out = new FileOutputStream(f);
-                props.store(out, "ANTICIPATION PROPERTIES");
-                out.close();
             }
             else{
                 JOptionPane.showMessageDialog(this,

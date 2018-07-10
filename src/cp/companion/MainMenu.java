@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,7 +18,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -96,13 +96,25 @@ public class MainMenu extends javax.swing.JFrame {
         tableStocks.setAutoCreateRowSorter(true);  
         tableVencimientos.setAutoCreateRowSorter(true);
         
-        file = new File("config.properties");
-        if(file.exists() && !file.isDirectory()){
-            
-            try{
+        try{        
+            //cargamos el historial en memoria
+            File fileHistory = new File("historial.txt");
+            if(fileHistory.exists() && !fileHistory.isDirectory()){
+                FileReader fr = new FileReader(fileHistory);
+                BufferedReader br = new BufferedReader(fr);
+                String st;
+                while ((st = br.readLine()) != null){
+                    String[] linea = st.split(",");
+                    alertados.add(linea[0]);
+                }
+                br.close();
+            }
+             
+            file = new File("config.properties");
+            if(file.exists() && !file.isDirectory()){
                 input = new FileInputStream("config.properties");
                 prop.load(input);   
-                     
+
                 if (checkConfigFile()){
                     String myKey = TextEncryptor.encrypt(TextEncryptor.SECRET_KEY, ConfigMenu.configKey);
                     String decryptedPassword = TextEncryptor.decrypt(prop.getProperty("Password"), myKey); 
@@ -117,51 +129,32 @@ public class MainMenu extends javax.swing.JFrame {
                         Preferences.GetInstance().ip = "localhost";
                     if (Preferences.GetInstance().tcp.compareTo("") == 0)
                         Preferences.GetInstance().tcp = "1433";
-                    configLoaded = true;
-                    
+                    configLoaded = true;              
+
+                    //conectamos a la base y levantamos el daemon
                     toggleConnection();
 
                 }
                 else {
                     configLoaded = false;
                 }
-                
-            }catch (IOException ex){
-                ex.printStackTrace();
-            }catch (Exception ex){
-                ex.printStackTrace();
-            }finally{
-                if (input != null){
-                    try {
-                        input.close();
-                    }catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }  
-        }
-        try {
-            FileReader fileReader = new FileReader("historial.txt");
-            BufferedReader br = new BufferedReader(fileReader);
-            String st;
-            while ((st = br.readLine()) != null){
-                String[] linea = st.split(",");
-                System.out.println(linea[0]);
-                alertados.add(linea[0]);
-            }
-        
-        
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
 
-        
-        
-        
-                      
+            } 
+            
+        }catch (IOException ex){
+            ex.printStackTrace();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }finally{
+            if (input != null){
+                try {
+                    input.close();
+                }catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } 
+                    
     }
 
     public void setLabelVencidos (String text){
@@ -600,6 +593,61 @@ public class MainMenu extends javax.swing.JFrame {
     
     
     
+    public void removeLineFromHistoryFile(String codigo){
+        try{
+            File fileReader = new File("historial.txt");
+            File tempFile = new File("myTempFile.txt");
+            BufferedReader br = new BufferedReader(new FileReader(fileReader));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
+            String currentLine;
+            while ((currentLine = br.readLine()) != null){
+                String[] linea = currentLine.split(",");
+                if (linea[0].compareTo(codigo) != 0){
+                    bw.write(currentLine + System.getProperty("line.separator"));
+                }
+            }        
+            bw.close(); 
+            br.close(); 
+            fileReader.delete();
+            File file = new File("historial.txt");
+            tempFile.renameTo(file);
+            
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    
+//    public void cleanHistorial(){
+//        try {
+//            FileReader fileReader = new FileReader("historial.txt");
+//            BufferedReader br = new BufferedReader(fileReader);
+//            String st;
+//            while ((st = br.readLine()) != null){
+//                String[] linea = st.split(",");
+//                String[] codigo = linea[0].split("_");
+//                if(codigo[0].compareTo("STOCK") == 0){
+//                    
+//                }
+//                else if(codigo[0].compareTo("STOCKWARN") == 0){
+//                    
+//                }
+//                else if(codigo[0].compareTo("VENC") == 0){
+//                    
+//                }
+//                
+//            }
+//        
+//        
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IOException ex) {
+//            Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
+         
     public boolean checkDBFieldsExist(){
         int counter = 5;
         conDB.createAndExecuteQueryFields();
@@ -635,8 +683,9 @@ public class MainMenu extends javax.swing.JFrame {
             }
             conDB.disconnect();
         } 
-        //********************************************************************
+        
         //Ordenamiento de tablitas
+        //**********************************************************
         sorterS = new TableRowSorter<>(modelStocks);
         tableStocks.setRowSorter(sorterS);
         List<RowSorter.SortKey> sortKeysS = new ArrayList<>();
@@ -650,7 +699,7 @@ public class MainMenu extends javax.swing.JFrame {
         sortKeysV.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
         sorterV.setSortKeys(sortKeysV);
         sorterV.sort();
-        //********************************************************************
+        //***********************************************************
     }
     
     

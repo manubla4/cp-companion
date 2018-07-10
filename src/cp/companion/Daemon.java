@@ -13,9 +13,10 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoUnit.DAYS;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -71,70 +72,105 @@ class Daemon implements Runnable {
             
             while (true){
                 conDB.connect();
+                            
+                //******************************************************************************************************** 
+                //***************************************MANEJO DE STOCKS*************************************************
+                //******************************************************************************************************** 
                 conDB.createAndExecuteQueryStocks();
                 while (conDB.RSgetNext()){
                     String articulo = conDB.RSgetString("CODARTICULO");
+                    String codigoAlmacen = conDB.RSgetString("CODALMACEN");
+                    String nombreAlmacen = conDB.RSgetString("NOMBREALMACEN");
                     float minimo = conDB.RSgetFloat("MINIMO");
                     float stock = conDB.RSgetFloat("STOCK");                    
-                    float anticipation = Float.parseFloat(props.getProperty("STOCK_"+articulo, Integer.toString(ConfigMenu.DEFAULT_ANTICIPATION)));
-                    
+                    float anticipation = Float.parseFloat(props.getProperty("STOCK_"+articulo+"_"+codigoAlmacen, Integer.toString(ConfigMenu.DEFAULT_ANTICIPATION)));
+                    String codigoStock = "STOCK_"+articulo+"_"+codigoAlmacen;
+                    String codigoStockWarn = "STOCKWARN_"+articulo+"_"+codigoAlmacen;
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                    LocalDateTime now = LocalDateTime.now();
+                        
+                    //si alcanzo el minimo
                     if (stock <= minimo){
                         articulosSinStock += 1;
-                        if (!MainMenu.GetInstance().alertados.contains(articulo+"-S")){
+                        if (!MainMenu.GetInstance().alertados.contains(codigoStock)){
+                            MainMenu.GetInstance().alertados.add(codigoStock);
                             fileWriter = new FileWriter("historial.txt",true);
                             bufferedWriter = new BufferedWriter(fileWriter);
-                            bufferedWriter.write(articulo+"-S,Stock mínimo alcanzado en artículo "+articulo);
+                            bufferedWriter.write(codigoStock+","+dtf.format(now)+",Stock mínimo alcanzado");
                             bufferedWriter.newLine();
                             bufferedWriter.close();
-
+                            
                             if (MainMenu.GetInstance().activeFrame){
                                 JOptionPane.showMessageDialog(MainMenu.GetInstance(),
-                                            "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+articulo,
+                                            "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+articulo+"\nALMACEN: "+nombreAlmacen,
                                             "  Advertencia",
                                             JOptionPane.WARNING_MESSAGE);
                             }
                             else if (ConfigMenu.GetInstance().activeFrame){
                                 JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
-                                            "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+articulo,
+                                            "STOCK MINIMO ALCANZADO !\nCÓDIGO ARTÍCULO: "+articulo+"\nALMACEN: "+nombreAlmacen,
                                             "  Advertencia",
                                             JOptionPane.WARNING_MESSAGE);
                             }
                         }
                     }      
                     
+                    //si no alcanzo el minimo pero esta en la franja de alerta anticipatoria
                     else if (stock <= (minimo + anticipation)){
                        articulosPorAcabarse += 1;
-                       if (!MainMenu.GetInstance().alertados.contains(articulo+"-SAnt")){
+                       if (!MainMenu.GetInstance().alertados.contains(codigoStockWarn)){
+                           MainMenu.GetInstance().alertados.add(codigoStockWarn);
                             fileWriter = new FileWriter("historial.txt",true);
                             bufferedWriter = new BufferedWriter(fileWriter);
-                            bufferedWriter.write(articulo+"-SWarn,Stock mínimo alcanzado en artículo "+articulo);
+                            bufferedWriter.write(codigoStockWarn+","+dtf.format(now)+",Stock a solo "+Math.round(stock-minimo)+" unidades de alcanzar el mínimo");
                             bufferedWriter.newLine();
                             bufferedWriter.close();
                             if (MainMenu.GetInstance().activeFrame){
                                  JOptionPane.showMessageDialog(MainMenu.GetInstance(),
-                                             "STOCK A SOLO "+ Math.round(stock-minimo) +" UNIDADES DE ALCANZAR EL MINIMO !\nCÓDIGO ARTÍCULO: "+articulo,
+                                             "STOCK A SOLO "+ Math.round(stock-minimo) +" UNIDADES DE ALCANZAR EL MINIMO !\nCÓDIGO ARTÍCULO: "+articulo+"\nALMACEN: "+nombreAlmacen,
                                              "  Advertencia",
                                              JOptionPane.WARNING_MESSAGE);
                              }
                              else if (ConfigMenu.GetInstance().activeFrame){
                                  JOptionPane.showMessageDialog(ConfigMenu.GetInstance(),
-                                             "STOCK A SOLO "+ Math.round(stock-minimo) +" UNIDADES DE ALCANZAR EL MINIMO !\nCÓDIGO ARTÍCULO: "+articulo,
+                                             "STOCK A SOLO "+ Math.round(stock-minimo) +" UNIDADES DE ALCANZAR EL MINIMO !\nCÓDIGO ARTÍCULO: "+articulo+"\nALMACEN: "+nombreAlmacen,
                                              "  Advertencia",
                                              JOptionPane.WARNING_MESSAGE);
-                             } 
-                             props.setProperty("STOCK_"+articulo, Integer.toString(Math.round(anticipation-1)));
-                             OutputStream out = new FileOutputStream(f);
-                             props.store(out, "ANTICIPATION PROPERTIES");
-                             out.close();
+                             }                            
                        }
-                    }    
-                }
-                
+                    } 
+                    
+                    //si el stock esta ok chequeamos si esta en el historial, y si esta
+                    //lo sacamos para poder alertar de nuevo cuando vuelva a tener stock bajo
+                    else{                     
+                        if (MainMenu.GetInstance().alertados.contains(codigoStock)){
+                            MainMenu.GetInstance().alertados.remove(codigoStock);
+                            MainMenu.GetInstance().removeLineFromHistoryFile(codigoStock);
+                          
+                        }
+                        else if (MainMenu.GetInstance().alertados.contains(codigoStockWarn)){
+                            MainMenu.GetInstance().alertados.remove(codigoStockWarn);
+                            MainMenu.GetInstance().removeLineFromHistoryFile(codigoStockWarn);
+                        }
+                    }
+                }              
                 MainMenu.GetInstance().setLabelStocks("ACABADOS: "+ articulosSinStock);
                 MainMenu.GetInstance().setLabelStocksAnt("POR ACABARSE: "+ articulosPorAcabarse);
                 articulosSinStock = 0;
                 articulosPorAcabarse = 0;
-                    
+                //********************************************************************************************************         
+                //**************************************FIN MANEJO DE STOCKS********************************************** 
+                //******************************************************************************************************** 
+                
+                
+                
+  
+                
+                
+                
+                //******************************************************************************************************** 
+                //***************************************MANEJO DE VENCIMIENTOS*******************************************
+                //******************************************************************************************************** 
                 localDate = LocalDate.now();
                 //daysBetween =  DAYS.between(lastDateCheck, localDate);
                 conDB.createAndExecuteQueryVenc();
@@ -146,7 +182,9 @@ class Daemon implements Runnable {
                     LocalDate lote3 = conDB.RSgetDate("VENCIMIENTO_LOTE3");
                     LocalDate lote4 = conDB.RSgetDate("VENCIMIENTO_LOTE4");
                     LocalDate lote5 = conDB.RSgetDate("VENCIMIENTO_LOTE5");
-
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                    LocalDateTime now = LocalDateTime.now();
+                    
                     if (lote1 != null && lote1.compareTo(localDate) <= 0){
                         loteString += " - LOTE 1";
                         lotesVencidos += 1;
@@ -174,10 +212,10 @@ class Daemon implements Runnable {
 
                     if (loteString != ""){
                         String articulo = conDB.RSgetString("CODARTICULO");
-                        if (!MainMenu.GetInstance().alertados.contains(articulo+"-V")){
+                        if (!MainMenu.GetInstance().alertados.contains("VENC_"+articulo)){
                             fileWriter = new FileWriter("historial.txt",true);
                             bufferedWriter = new BufferedWriter(fileWriter);
-                            bufferedWriter.write(articulo+"-V,Fecha vencimiento alcanzada en artículo "+articulo+" lotes:"+loteString);
+                            bufferedWriter.write("VENC_"+articulo+","+dtf.format(now)+",Fecha vencimiento alcanzada en lotes:"+loteString);
                             bufferedWriter.newLine();
                             bufferedWriter.close();
                             if (MainMenu.GetInstance().activeFrame){
@@ -197,7 +235,13 @@ class Daemon implements Runnable {
                 }
 
                 MainMenu.GetInstance().setLabelVencidos("VENCIDOS: "+lotesVencidos);
-                lotesVencidos = 0;
+                lotesVencidos = 0;       
+                
+                //******************************************************************************************************** 
+                //***************************************FIN MANEJO DE VENCIMIENTOS***************************************
+                //******************************************************************************************************** 
+                
+                
                 conDB.disconnect();
 //                System.out.println("Me duermo!");
                 Thread.sleep(Preferences.GetInstance().time); 
